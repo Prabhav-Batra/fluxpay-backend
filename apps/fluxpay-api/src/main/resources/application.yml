@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: fluxpay-api
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:fluxpay}
+    username: ${DB_USER:fluxpay_user}
+    password: ${DB_PASS:fluxpay_pass}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

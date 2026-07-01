@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: fluxpay-postgres
+    environment:
+      POSTGRES_DB: fluxpay
+      POSTGRES_USER: fluxpay_user
+      POSTGRES_PASSWORD: fluxpay_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: fluxpay-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
