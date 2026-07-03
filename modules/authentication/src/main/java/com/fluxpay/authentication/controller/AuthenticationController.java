@@ -2,6 +2,7 @@ package com.fluxpay.authentication.controller;
 
 import com.fluxpay.authentication.dto.AuthResponse;
 import com.fluxpay.authentication.dto.LoginRequest;
+import com.fluxpay.authentication.dto.RegisterRequest;
 import com.fluxpay.authentication.service.AuthenticationService;
 import com.fluxpay.shared.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -23,5 +24,11 @@ public class AuthenticationController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authenticationService.login(request);
         return ResponseEntity.ok(ApiResponse.success(response, "Login successful"));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse response = authenticationService.register(request);
+        return ResponseEntity.ok(ApiResponse.success(response, "Registration successful"));
     }
 }

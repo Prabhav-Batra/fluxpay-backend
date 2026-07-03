@@ -39,4 +39,10 @@ public class InvoiceController {
         List<InvoiceDto> invoices = invoiceService.getCustomerInvoices(merchantId, email);
         return ResponseEntity.ok(ApiResponse.success(invoices));
     }
+
+    @GetMapping("/merchant/{merchantId}")
+    public ResponseEntity<ApiResponse<List<InvoiceDto>>> getAllInvoices(@PathVariable UUID merchantId) {
+        List<InvoiceDto> invoices = invoiceService.getAllInvoices(merchantId);
+        return ResponseEntity.ok(ApiResponse.success(invoices));
+    }
 }

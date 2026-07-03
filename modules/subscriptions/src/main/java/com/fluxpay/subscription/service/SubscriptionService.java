@@ -67,6 +67,13 @@ public class SubscriptionService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<SubscriptionDto> getAllSubscriptions(UUID merchantId) {
+        return subscriptionRepository.findByMerchantId(merchantId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public SubscriptionDto cancelSubscription(UUID id) {
         Subscription subscription = subscriptionRepository.findById(id)

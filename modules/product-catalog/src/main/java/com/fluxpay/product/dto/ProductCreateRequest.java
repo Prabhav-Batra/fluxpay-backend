@@ -6,7 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import com.fluxpay.product.entity.BillingCycle;
+import com.fluxpay.product.entity.ProductType;
+import com.fluxpay.product.entity.ProductVisibility;
+
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,6 +32,28 @@ public class ProductCreateRequest {
 
     @NotNull(message = "Merchant ID is required")
     private UUID merchantId;
+
+    @NotNull(message = "Product Type is required")
+    private ProductType productType;
+
+    private BillingCycle billingCycle;
+    private Integer trialPeriodDays;
+    private Integer gracePeriodDays;
+    private Map<String, Object> renewalRules;
+    private Map<String, Object> cancellationRules;
+    private List<String> benefits;
+    
+    private Integer baseCredits;
+    private Integer bonusCredits;
+    private Integer purchaseLimit;
+
+    @NotNull(message = "Visibility is required")
+    private ProductVisibility visibility;
+
+    private String displayImage;
+
+    // List of assets to grant and their quantities
+    private List<ProductAssetLinkRequest> assets;
 
     private Map<String, Object> metadata;
 }

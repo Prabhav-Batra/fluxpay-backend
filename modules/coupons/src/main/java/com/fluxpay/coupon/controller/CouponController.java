@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,6 +32,12 @@ public class CouponController {
     public ResponseEntity<ApiResponse<CouponDto>> getCoupon(@PathVariable UUID id) {
         CouponDto coupon = couponService.getCoupon(id);
         return ResponseEntity.ok(ApiResponse.success(coupon));
+    }
+
+    @GetMapping("/merchant/{merchantId}")
+    public ResponseEntity<ApiResponse<List<CouponDto>>> getAllCoupons(@PathVariable UUID merchantId) {
+        List<CouponDto> coupons = couponService.getAllCoupons(merchantId);
+        return ResponseEntity.ok(ApiResponse.success(coupons));
     }
 
     @PostMapping("/apply")

@@ -31,7 +31,6 @@ public class Merchant {
     private String passwordHash;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
     private Map<String, Object> metadata;
 
     @CreationTimestamp

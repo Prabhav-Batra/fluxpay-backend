@@ -15,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +73,21 @@ public class PaymentService {
         return paymentIntentRepository.findById(id)
                 .map(this::mapToDto)
                 .orElseThrow(() -> new ResourceNotFoundException("PaymentIntent", id.toString()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<PaymentIntentDto> getAllPayments(UUID merchantId) {
+        List<UUID> orderIds = orderService.getOrdersByMerchant(merchantId).stream()
+                .map(OrderDto::getId)
+                .collect(Collectors.toList());
+        
+        if (orderIds.isEmpty()) {
+            return List.of();
+        }
+        
+        return paymentIntentRepository.findByOrderIdIn(orderIds).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     private PaymentIntentDto mapToDto(PaymentIntent intent) {

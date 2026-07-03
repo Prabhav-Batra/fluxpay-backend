@@ -40,6 +40,13 @@ public class SubscriptionController {
         return ResponseEntity.ok(ApiResponse.success(subscriptions));
     }
 
+    @GetMapping("/merchant/{merchantId}")
+    public ResponseEntity<ApiResponse<List<SubscriptionDto>>> getAllSubscriptions(
+            @PathVariable UUID merchantId) {
+        List<SubscriptionDto> subscriptions = subscriptionService.getAllSubscriptions(merchantId);
+        return ResponseEntity.ok(ApiResponse.success(subscriptions));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<SubscriptionDto>> cancelSubscription(@PathVariable UUID id) {
         SubscriptionDto subscription = subscriptionService.cancelSubscription(id);

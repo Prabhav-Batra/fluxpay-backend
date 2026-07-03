@@ -60,6 +60,13 @@ public class InvoiceService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<InvoiceDto> getAllInvoices(UUID merchantId) {
+        return invoiceRepository.findByMerchantId(merchantId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
     private String generateInvoiceNumber() {
         String datePrefix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String suffix = UUID.randomUUID().toString().substring(0, 6).toUpperCase();

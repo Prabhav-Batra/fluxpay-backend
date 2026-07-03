@@ -3,7 +3,11 @@ package com.fluxpay.organization.service;
 import com.fluxpay.organization.dto.OrganizationCreateRequest;
 import com.fluxpay.organization.dto.OrganizationDto;
 import com.fluxpay.organization.entity.Organization;
+import com.fluxpay.organization.entity.Application;
 import com.fluxpay.organization.repository.OrganizationRepository;
+import com.fluxpay.organization.repository.ApplicationRepository;
+import com.fluxpay.organization.dto.ApplicationCreateRequest;
+import com.fluxpay.organization.dto.ApplicationDto;
 import com.fluxpay.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,7 @@ import java.util.stream.Collectors;
 public class OrganizationService {
 
     private final OrganizationRepository organizationRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Transactional
     public OrganizationDto createOrganization(OrganizationCreateRequest request) {
@@ -50,6 +55,36 @@ public class OrganizationService {
                 .name(organization.getName())
                 .merchantId(organization.getMerchantId())
                 .createdAt(organization.getCreatedAt())
+                .build();
+    }
+
+    @Transactional
+    public ApplicationDto createApplication(ApplicationCreateRequest request) {
+        Organization org = organizationRepository.findById(request.getOrganizationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Organization", request.getOrganizationId().toString()));
+
+        Application application = Application.builder()
+                .name(request.getName())
+                .organizationId(org.getId())
+                .build();
+
+        application = applicationRepository.save(application);
+        return mapToApplicationDto(application);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ApplicationDto> getApplicationsByOrganization(UUID organizationId) {
+        return applicationRepository.findByOrganizationId(organizationId).stream()
+                .map(this::mapToApplicationDto)
+                .collect(Collectors.toList());
+    }
+
+    private ApplicationDto mapToApplicationDto(Application application) {
+        return ApplicationDto.builder()
+                .id(application.getId())
+                .name(application.getName())
+                .organizationId(application.getOrganizationId())
+                .createdAt(application.getCreatedAt())
                 .build();
     }
 }

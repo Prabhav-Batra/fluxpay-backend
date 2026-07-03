@@ -32,4 +32,11 @@ public class AuditLogController {
         List<AuditLogDto> logs = auditLogService.getUserAuditLogs(userId);
         return ResponseEntity.ok(ApiResponse.success(logs));
     }
+
+    @GetMapping("/merchant/{merchantId}")
+    public ResponseEntity<ApiResponse<List<AuditLogDto>>> getMerchantAuditLogs(@PathVariable UUID merchantId) {
+        // For now, merchantId is synonymous with userId in this context
+        List<AuditLogDto> logs = auditLogService.getUserAuditLogs(merchantId);
+        return ResponseEntity.ok(ApiResponse.success(logs));
+    }
 }

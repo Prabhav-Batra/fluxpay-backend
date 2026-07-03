@@ -32,9 +32,10 @@ dependencies {
     
     // Phase 6 Modules
     implementation(project(":modules:webhooks"))
-    implementation(project(":modules:notifications"))
-    implementation(project(":modules:audit-logs"))
-    implementation(project(":modules:analytics"))
+    // implementation(project(":modules:notifications"))
+    // implementation(project(":modules:audit-logs"))
+    // implementation(project(":modules:analytics"))
+    implementation(project(":modules:customers"))
     implementation(project(":shared:exceptions"))
     implementation(project(":shared:security"))
     implementation(project(":shared:common-dto"))

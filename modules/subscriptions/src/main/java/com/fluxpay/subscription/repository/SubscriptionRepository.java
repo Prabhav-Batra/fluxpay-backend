@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, UUID> {
     List<Subscription> findByMerchantIdAndCustomerEmail(UUID merchantId, String customerEmail);
+    List<Subscription> findByMerchantId(UUID merchantId);
 }

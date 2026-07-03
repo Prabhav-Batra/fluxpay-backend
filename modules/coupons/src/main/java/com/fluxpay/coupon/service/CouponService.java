@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,13 @@ public class CouponService {
         return couponRepository.findById(id)
                 .map(this::mapToDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Coupon", id.toString()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<CouponDto> getAllCoupons(UUID merchantId) {
+        return couponRepository.findByMerchantId(merchantId).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
