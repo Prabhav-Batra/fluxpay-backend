@@ -1,0 +1,18 @@
+# ProjectOS - Backend Architecture Constraints
+
+version: v1.0.0
+level: BACKEND
+target: "Fluxpay-backend/**"
+
+rules:
+  - id: strict_layered_architecture
+    description: "The backend must strictly adhere to Controller -> Service -> Repository layers. Controllers must NEVER inject Repositories directly. Services hold the business logic."
+    enforcement: BLOCKING
+  
+  - id: dto_encapsulation
+    description: "Internal JPA Entities (e.g. `Merchant`, `Product`) must NEVER be returned directly in API responses. All responses must be mapped to DTOs (e.g. `MerchantDto`) before leaving the Controller layer."
+    enforcement: BLOCKING
+
+  - id: modular_domain_driven_design
+    description: "Modules in the backend (`fluxpay-api`, `merchant-management`, etc.) cannot directly import entities from other modules. If Cross-module communication is needed, it must happen via inter-module service calls using generic IDs."
+    enforcement: WARNING
