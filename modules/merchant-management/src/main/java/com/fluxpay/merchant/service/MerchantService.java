@@ -44,9 +44,15 @@ public class MerchantService {
     }
 
     @Transactional(readOnly = true)
-    public Merchant getMerchantEntityByEmail(String email) {
-        return merchantRepository.findByEmail(email)
-                .orElseThrow(() -> new BusinessException("Merchant not found", "MERCHANT_NOT_FOUND"));
+    public MerchantDto verifyCredentials(String email, String rawPassword) {
+        Merchant merchant = merchantRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException("Invalid email or password", "INVALID_CREDENTIALS"));
+                
+        if (!passwordEncoder.matches(rawPassword, merchant.getPasswordHash())) {
+            throw new BusinessException("Invalid email or password", "INVALID_CREDENTIALS");
+        }
+        
+        return mapToDto(merchant);
     }
 
     private MerchantDto mapToDto(Merchant merchant) {

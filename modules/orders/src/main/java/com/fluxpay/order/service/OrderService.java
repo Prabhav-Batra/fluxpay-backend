@@ -12,8 +12,10 @@ import com.fluxpay.product.dto.ProductDto;
 import com.fluxpay.product.service.ProductService;
 import com.fluxpay.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import com.fluxpay.shared.utils.TraceLogger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Map;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -66,6 +68,13 @@ public class OrderService {
         order.setCurrency(currency);
 
         order = orderRepository.save(order);
+        
+        TraceLogger.emit("CREATE_ORDER", 1.0, Map.of(
+            "orderId", order.getId(),
+            "merchantId", order.getMerchantId(),
+            "totalAmount", order.getTotalAmount()
+        ));
+        
         return mapToDto(order);
     }
 

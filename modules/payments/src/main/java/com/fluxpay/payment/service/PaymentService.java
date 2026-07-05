@@ -12,8 +12,10 @@ import com.fluxpay.payment.repository.PaymentIntentRepository;
 import com.fluxpay.shared.exception.BusinessException;
 import com.fluxpay.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import com.fluxpay.shared.utils.TraceLogger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Map;
 
 import java.util.List;
 import java.util.UUID;
@@ -61,6 +63,12 @@ public class PaymentService {
                 .build();
 
         intent = paymentIntentRepository.save(intent);
+
+        TraceLogger.emit("PROCESS_PAYMENT", 1.0, Map.of(
+            "intentId", intent.getId(),
+            "orderId", intent.getOrderId(),
+            "gatewayProvider", intent.getGatewayProvider()
+        ));
 
         // Map and include the volatile paymentLink
         PaymentIntentDto dto = mapToDto(intent);

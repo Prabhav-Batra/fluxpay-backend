@@ -10,8 +10,10 @@ import com.fluxpay.subscription.entity.Subscription;
 import com.fluxpay.subscription.entity.SubscriptionStatus;
 import com.fluxpay.subscription.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
+import com.fluxpay.shared.utils.TraceLogger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Map;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -50,6 +52,13 @@ public class SubscriptionService {
                 .build();
 
         subscription = subscriptionRepository.save(subscription);
+
+        TraceLogger.emit("CREATE_SUBSCRIPTION", 1.0, Map.of(
+            "subscriptionId", subscription.getId(),
+            "merchantId", subscription.getMerchantId(),
+            "productId", subscription.getProductId()
+        ));
+
         return mapToDto(subscription);
     }
 
@@ -82,6 +91,12 @@ public class SubscriptionService {
         subscription.setCancelAtPeriodEnd(true);
         // It remains ACTIVE until currentPeriodEnd is reached by a background cron job
         subscription = subscriptionRepository.save(subscription);
+        
+        TraceLogger.emit("CANCEL_SUBSCRIPTION", 1.0, Map.of(
+            "subscriptionId", subscription.getId(),
+            "merchantId", subscription.getMerchantId()
+        ));
+        
         return mapToDto(subscription);
     }
 
