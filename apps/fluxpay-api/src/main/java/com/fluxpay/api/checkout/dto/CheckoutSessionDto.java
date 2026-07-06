@@ -22,4 +22,5 @@ public class CheckoutSessionDto {
     private String currency;
     private String status;
     private UUID orderId;
+    private String paymentSessionId; // Cashfree requires this for JS SDK
 }

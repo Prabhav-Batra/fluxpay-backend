@@ -56,7 +56,7 @@ public class CheckoutSessionService {
         // 3. Create PaymentIntent via Gateway Router
         ProcessPaymentRequest piRequest = new ProcessPaymentRequest();
         piRequest.setOrderId(order.getId());
-        piRequest.setPreferredGateway("PAYU");
+        piRequest.setPreferredGateway("CASHFREE");
                 
         PaymentIntentDto paymentIntent = paymentService.processPayment(piRequest);
 
@@ -72,6 +72,7 @@ public class CheckoutSessionService {
                 .currency(order.getCurrency())
                 .status("open")
                 .orderId(order.getId())
+                .paymentSessionId(paymentIntent.getPaymentLink()) // The CashfreeAdapter stores the session ID in the link field
                 .build();
                 
         sessionStore.put(sessionId, sessionDto);
