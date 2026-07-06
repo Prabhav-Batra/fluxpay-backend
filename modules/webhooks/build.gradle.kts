@@ -2,6 +2,7 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     api("org.springframework.boot:spring-boot-starter-validation")
     api("org.springframework.boot:spring-boot-starter-web")
+    api("org.springframework.boot:spring-boot-starter-data-redis")
 
     api(project(":shared:common-dto"))
     api(project(":shared:exceptions"))
