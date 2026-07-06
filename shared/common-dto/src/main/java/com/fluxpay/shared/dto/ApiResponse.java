@@ -13,8 +13,7 @@ import java.util.List;
 public class ApiResponse<T> {
     private final boolean success;
     private final T data;
-    private final String message;
-    private final List<String> errors;
+    private final ErrorDetail error;
     
     @Builder.Default
     private final Instant timestamp = Instant.now();
@@ -30,22 +29,44 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .success(true)
                 .data(data)
-                .message(message)
                 .build();
     }
 
-    public static <T> ApiResponse<T> error(String message) {
+    public static <T> ApiResponse<T> error(String code, String message) {
         return ApiResponse.<T>builder()
                 .success(false)
-                .message(message)
+                .error(ErrorDetail.builder()
+                        .code(code)
+                        .message(message)
+                        .traceId(getTraceId())
+                        .build())
                 .build();
     }
 
-    public static <T> ApiResponse<T> error(String message, List<String> errors) {
+    public static <T> ApiResponse<T> error(String code, String message, List<String> details) {
         return ApiResponse.<T>builder()
                 .success(false)
-                .message(message)
-                .errors(errors)
+                .error(ErrorDetail.builder()
+                        .code(code)
+                        .message(message)
+                        .details(details)
+                        .traceId(getTraceId())
+                        .build())
                 .build();
+    }
+
+    private static String getTraceId() {
+        String traceId = org.slf4j.MDC.get("traceId");
+        return traceId != null ? traceId : java.util.UUID.randomUUID().toString();
+    }
+
+    @Getter
+    @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ErrorDetail {
+        private final String code;
+        private final String message;
+        private final List<String> details;
+        private final String traceId;
     }
 }

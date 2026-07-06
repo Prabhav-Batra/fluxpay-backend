@@ -16,8 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.RequiredArgsConstructor;
+import com.fluxpay.shared.exception.BusinessException;
+
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CashfreeAdapter implements PaymentGatewayPort {
 
     @Value("${fluxpay.gateways.cashfree.app-id}")
@@ -29,9 +34,10 @@ public class CashfreeAdapter implements PaymentGatewayPort {
     @Value("${fluxpay.gateways.cashfree.environment}")
     private String environment;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
     @Override
+    @CircuitBreaker(name = "cashfree", fallbackMethod = "cashfreeFallback")
     public String generatePaymentLink(UUID orderId, BigDecimal amount, String currency, String customerEmail) {
         log.info("Generating Cashfree payment session for order: {}", orderId);
         
@@ -72,10 +78,15 @@ public class CashfreeAdapter implements PaymentGatewayPort {
             }
         } catch (Exception ex) {
             log.error("Failed to call Cashfree API", ex);
-            throw new RuntimeException("Failed to generate Cashfree session", ex);
+            throw new BusinessException("PAYMENT_GATEWAY_ERROR", "Failed to generate Cashfree session: " + ex.getMessage());
         }
         
-        throw new RuntimeException("Failed to generate Cashfree session: No response body");
+        throw new BusinessException("PAYMENT_GATEWAY_ERROR", "Failed to generate Cashfree session: No response body");
+    }
+
+    public String cashfreeFallback(UUID orderId, BigDecimal amount, String currency, String customerEmail, Throwable t) {
+        log.error("Cashfree circuit breaker activated for order {}. Error: {}", orderId, t.getMessage());
+        throw new BusinessException("GATEWAY_UNAVAILABLE", "Cashfree is currently unavailable. Please try again later.");
     }
 
     @Override
