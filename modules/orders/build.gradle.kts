@@ -8,4 +8,5 @@ dependencies {
     api(project(":shared:utils"))
     api(project(":shared:events"))
     api(project(":modules:product-catalog"))
+    api(project(":modules:webhooks"))
 }

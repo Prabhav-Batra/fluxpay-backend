@@ -35,11 +35,10 @@ public class CheckoutSessionService {
 
     @Transactional
     public CheckoutSessionResponse createSession(CheckoutSessionRequest request) {
-        // TODO: Replace with actual Merchant ID from API Key Authentication Token
-        UUID merchantId = UUID.fromString("00000000-0000-0000-0000-000000000000");
-
         // 1. Fetch Product
         ProductDto product = productService.getProduct(request.getProductId());
+        
+        UUID merchantId = product.getMerchantId();
 
         // 2. Create Order
         OrderLineItemRequest lineItem = new OrderLineItemRequest();
@@ -77,7 +76,11 @@ public class CheckoutSessionService {
                 
         sessionStore.put(sessionId, sessionDto);
         
-        String checkoutUrl = "http://localhost:3000/checkout/" + sessionId;
+        String frontendUrl = System.getenv("NEXT_PUBLIC_FRONTEND_URL");
+        if (frontendUrl == null) {
+            frontendUrl = "http://localhost:3000";
+        }
+        String checkoutUrl = frontendUrl + "/checkout/" + sessionId;
         
         return CheckoutSessionResponse.builder()
                 .sessionId(sessionId)
