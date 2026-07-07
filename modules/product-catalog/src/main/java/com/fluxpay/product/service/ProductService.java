@@ -31,7 +31,7 @@ public class ProductService {
     private final ProductAssetLinkRepository productAssetLinkRepository;
 
     @Transactional
-    @CacheEvict(value = "merchant-products", key = "#request.merchantId")
+    @CacheEvict(value = "merchant-products", key = "#request.merchantId.toString()")
     public ProductDto createProduct(ProductCreateRequest request) {
         Product product = Product.builder()
                 .name(request.getName())
@@ -85,7 +85,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "products", key = "#id")
+    @Cacheable(value = "products", key = "#id.toString()")
     public ProductDto getProduct(UUID id) {
         return productRepository.findById(id)
                 .map(this::mapToDto)
@@ -93,7 +93,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "merchant-products", key = "#merchantId")
+    @Cacheable(value = "merchant-products", key = "#merchantId.toString()")
     public List<ProductDto> getActiveProductsByMerchant(UUID merchantId) {
         return productRepository.findByMerchantIdAndActiveTrue(merchantId).stream()
                 .map(this::mapToDto)
@@ -102,7 +102,7 @@ public class ProductService {
 
     @Transactional
     @Caching(evict = {
-        @CacheEvict(value = "products", key = "#id"),
+        @CacheEvict(value = "products", key = "#id.toString()"),
         @CacheEvict(value = "merchant-products", allEntries = true)
     })
     public void deactivateProduct(UUID id) {

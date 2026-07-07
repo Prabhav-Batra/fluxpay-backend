@@ -38,7 +38,7 @@ public class MerchantService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(value = "merchants", key = "#id")
+    @Cacheable(value = "merchants", key = "#id.toString()")
     public MerchantDto getMerchant(UUID id) {
         return merchantRepository.findById(id)
                 .map(this::mapToDto)
