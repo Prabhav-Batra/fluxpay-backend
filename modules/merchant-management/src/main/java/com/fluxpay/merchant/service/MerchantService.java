@@ -8,6 +8,7 @@ import com.fluxpay.shared.exception.BusinessException;
 import com.fluxpay.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class MerchantService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "merchants", key = "#id")
     public MerchantDto getMerchant(UUID id) {
         return merchantRepository.findById(id)
                 .map(this::mapToDto)

@@ -23,4 +23,15 @@ public class RedisConfig {
         template.afterPropertiesSet();
         return template;
     }
+    @Bean
+    public org.springframework.cache.CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        org.springframework.data.redis.cache.RedisCacheConfiguration config = org.springframework.data.redis.cache.RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(java.time.Duration.ofMinutes(10))
+            .serializeKeysWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+            .serializeValuesWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
+        return org.springframework.data.redis.cache.RedisCacheManager.builder(connectionFactory)
+            .cacheDefaults(config)
+            .build();
+    }
 }

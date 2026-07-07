@@ -12,6 +12,9 @@ import com.fluxpay.product.repository.ProductRepository;
 import com.fluxpay.shared.exception.BusinessException;
 import com.fluxpay.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class ProductService {
     private final ProductAssetLinkRepository productAssetLinkRepository;
 
     @Transactional
+    @CacheEvict(value = "merchant-products", key = "#request.merchantId")
     public ProductDto createProduct(ProductCreateRequest request) {
         Product product = Product.builder()
                 .name(request.getName())
@@ -81,6 +85,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "#id")
     public ProductDto getProduct(UUID id) {
         return productRepository.findById(id)
                 .map(this::mapToDto)
@@ -88,6 +93,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(value = "merchant-products", key = "#merchantId")
     public List<ProductDto> getActiveProductsByMerchant(UUID merchantId) {
         return productRepository.findByMerchantIdAndActiveTrue(merchantId).stream()
                 .map(this::mapToDto)
@@ -95,6 +101,10 @@ public class ProductService {
     }
 
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "products", key = "#id"),
+        @CacheEvict(value = "merchant-products", allEntries = true)
+    })
     public void deactivateProduct(UUID id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id.toString()));
