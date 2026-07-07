@@ -11,4 +11,6 @@ public class ProcessPaymentRequest {
     private UUID orderId;
 
     private String preferredGateway; // Optional, e.g. "CASHFREE" or "PAYU"
+    
+    private String returnUrl;
 }

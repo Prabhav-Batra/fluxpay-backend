@@ -52,15 +52,19 @@ public class CheckoutSessionService {
                 
         OrderDto order = orderService.createOrder(orderRequest);
 
+        // Generate Session ID early
+        String sessionId = "cs_" + UUID.randomUUID().toString().replace("-", "");
+        String successUrl = request.getSuccessUrl().replace("{CHECKOUT_SESSION_ID}", sessionId);
+
         // 3. Create PaymentIntent via Gateway Router
         ProcessPaymentRequest piRequest = new ProcessPaymentRequest();
         piRequest.setOrderId(order.getId());
         piRequest.setPreferredGateway("CASHFREE");
+        piRequest.setReturnUrl(successUrl);
                 
         PaymentIntentDto paymentIntent = paymentService.processPayment(piRequest);
 
-        // 4. Generate Session
-        String sessionId = "cs_" + UUID.randomUUID().toString().replace("-", "");
+        // 4. Create Session
         
         CheckoutSessionDto sessionDto = CheckoutSessionDto.builder()
                 .sessionId(sessionId)

@@ -38,7 +38,7 @@ public class CashfreeAdapter implements PaymentGatewayPort {
 
     @Override
     @CircuitBreaker(name = "cashfree", fallbackMethod = "cashfreeFallback")
-    public String generatePaymentLink(UUID orderId, BigDecimal amount, String currency, String customerEmail) {
+    public String generatePaymentLink(UUID orderId, BigDecimal amount, String currency, String customerEmail, String returnUrl) {
         log.info("Generating Cashfree payment session for order: {}", orderId);
         
         String url = "SANDBOX".equalsIgnoreCase(environment) 
@@ -58,7 +58,7 @@ public class CashfreeAdapter implements PaymentGatewayPort {
         customerDetails.put("customer_email", customerEmail);
 
         Map<String, Object> orderMeta = new HashMap<>();
-        orderMeta.put("return_url", "http://localhost:3002/checkout/" + "SESSION_ID_PLACEHOLDER" + "/success?order_id={order_id}"); // The frontend will handle this or we can pass it dynamically.
+        orderMeta.put("return_url", returnUrl != null ? returnUrl : "http://localhost:3000/checkout/success?order_id={order_id}");
 
         Map<String, Object> body = new HashMap<>();
         body.put("order_amount", amount);
@@ -84,7 +84,7 @@ public class CashfreeAdapter implements PaymentGatewayPort {
         throw new BusinessException("PAYMENT_GATEWAY_ERROR", "Failed to generate Cashfree session: No response body");
     }
 
-    public String cashfreeFallback(UUID orderId, BigDecimal amount, String currency, String customerEmail, Throwable t) {
+    public String cashfreeFallback(UUID orderId, BigDecimal amount, String currency, String customerEmail, String returnUrl, Throwable t) {
         log.error("Cashfree circuit breaker activated for order {}. Error: {}", orderId, t.getMessage());
         throw new BusinessException("GATEWAY_UNAVAILABLE", "Cashfree is currently unavailable. Please try again later.");
     }

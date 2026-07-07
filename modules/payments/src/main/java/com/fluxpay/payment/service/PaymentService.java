@@ -47,7 +47,8 @@ public class PaymentService {
                     order.getId(),
                     order.getTotalAmount(),
                     order.getCurrency(),
-                    order.getCustomerEmail()
+                    order.getCustomerEmail(),
+                    request.getReturnUrl()
             );
         } catch (Exception ex) {
             throw new BusinessException("Gateway failed to generate payment link", "GATEWAY_ERROR");
