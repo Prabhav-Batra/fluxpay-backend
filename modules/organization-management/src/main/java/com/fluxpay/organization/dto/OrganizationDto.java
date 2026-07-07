@@ -8,6 +8,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class OrganizationDto {
     private UUID id;
     private String name;

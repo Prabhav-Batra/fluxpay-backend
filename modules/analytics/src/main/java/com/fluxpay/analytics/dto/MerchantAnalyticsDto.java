@@ -8,6 +8,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class MerchantAnalyticsDto {
     private UUID merchantId;
     private long totalTransactions;

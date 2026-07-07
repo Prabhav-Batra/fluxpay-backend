@@ -14,6 +14,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class ProductDto {
     private UUID id;
     private String name;

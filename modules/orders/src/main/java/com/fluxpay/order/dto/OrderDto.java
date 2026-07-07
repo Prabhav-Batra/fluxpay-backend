@@ -11,6 +11,8 @@ import java.util.UUID;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class OrderDto {
     private UUID id;
     private String orderReference;
