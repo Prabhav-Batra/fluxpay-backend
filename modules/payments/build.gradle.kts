@@ -10,4 +10,5 @@ dependencies {
     
     api(project(":modules:orders"))
     api(project(":modules:gateway-framework"))
+    api(project(":modules:webhooks"))
 }
