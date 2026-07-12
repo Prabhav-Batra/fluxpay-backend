@@ -114,8 +114,9 @@ public class GatewayWebhookService {
             }
 
         } catch (Exception e) {
-            log.error("Error processing Cashfree webhook", e);
-            throw new RuntimeException("Webhook processing failed", e);
+            log.error("Error processing Cashfree webhook: {}", e.getMessage(), e);
+            // We intentionally do not throw an exception here.
+            // Cashfree expects a 200 OK even for unparseable test payloads to consider the endpoint valid.
         }
     }
 }
