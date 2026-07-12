@@ -29,6 +29,9 @@ management:
         include: health,info,prometheus
 
 fluxpay:
+  webhook:
+    worker:
+      enabled: ${WEBHOOK_WORKER_ENABLED:true}
   gateways:
     cashfree:
       app-id: ${CASHFREE_APP_ID:TEST430329ae80e0f32e41a393d78b923034}
