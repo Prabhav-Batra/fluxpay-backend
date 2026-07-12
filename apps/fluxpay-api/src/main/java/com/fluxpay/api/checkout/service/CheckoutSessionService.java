@@ -49,8 +49,11 @@ public class CheckoutSessionService {
         orderRequest.setMerchantId(merchantId);
         orderRequest.setCustomerEmail(request.getCustomerEmail());
         orderRequest.setItems(List.of(lineItem));
-        orderRequest.setOrderReference(request.getMerchantReference());
-                
+        // Append a unique suffix so multiple checkouts by the same user don't violate the DB unique constraint
+        String baseRef = request.getMerchantReference() != null && !request.getMerchantReference().trim().isEmpty() 
+            ? request.getMerchantReference().trim() 
+            : "ORD";
+        orderRequest.setOrderReference(baseRef + "_" + UUID.randomUUID().toString().substring(0, 8));              
         OrderDto order = orderService.createOrder(orderRequest);
 
         // Generate Session ID early
