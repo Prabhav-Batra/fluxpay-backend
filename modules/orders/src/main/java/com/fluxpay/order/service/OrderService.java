@@ -32,8 +32,12 @@ public class OrderService {
 
     @Transactional
     public OrderDto createOrder(OrderCreateRequest request) {
+        String orderRef = request.getOrderReference() != null && !request.getOrderReference().trim().isEmpty()
+                ? request.getOrderReference()
+                : generateOrderReference();
+
         Order order = Order.builder()
-                .orderReference(generateOrderReference())
+                .orderReference(orderRef)
                 .merchantId(request.getMerchantId())
                 .customerEmail(request.getCustomerEmail())
                 .status(OrderStatus.CREATED)

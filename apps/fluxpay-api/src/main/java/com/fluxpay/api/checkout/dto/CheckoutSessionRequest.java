@@ -28,4 +28,6 @@ public class CheckoutSessionRequest {
 
     @NotBlank(message = "Cancel URL is required")
     private String cancelUrl;
+
+    private String merchantReference;
 }

@@ -49,6 +49,7 @@ public class CheckoutSessionService {
         orderRequest.setMerchantId(merchantId);
         orderRequest.setCustomerEmail(request.getCustomerEmail());
         orderRequest.setItems(List.of(lineItem));
+        orderRequest.setOrderReference(request.getMerchantReference());
                 
         OrderDto order = orderService.createOrder(orderRequest);
 

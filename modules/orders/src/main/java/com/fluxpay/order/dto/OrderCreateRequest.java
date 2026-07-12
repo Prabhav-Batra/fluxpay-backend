@@ -19,4 +19,6 @@ public class OrderCreateRequest {
 
     @NotEmpty(message = "At least one item is required")
     private List<OrderLineItemRequest> items;
+
+    private String orderReference;
 }
