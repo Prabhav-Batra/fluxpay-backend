@@ -56,12 +56,19 @@ public class GatewayWebhookService {
                 return;
             }
 
-            UUID orderId = UUID.fromString(orderIdStr);
+            UUID orderId;
+            try {
+                orderId = UUID.fromString(orderIdStr);
+            } catch (IllegalArgumentException e) {
+                log.warn("Cashfree webhook 'order_id' is not a valid UUID (value: {}). Ignored for test pings.", orderIdStr);
+                return;
+            }
 
             // Find the PaymentIntent for this Order
             List<PaymentIntent> intents = paymentIntentRepository.findByOrderId(orderId);
             if (intents.isEmpty()) {
-                throw new ResourceNotFoundException("PaymentIntent for Order", orderIdStr);
+                log.warn("PaymentIntent for Order {} not found. Ignored for test pings.", orderIdStr);
+                return;
             }
 
             // In a real system, you'd match the specific intent by gatewayReference.
