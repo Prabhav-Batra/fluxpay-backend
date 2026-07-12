@@ -35,6 +35,7 @@ public class SecurityConfig {
                     "/v3/api-docs/**", 
                     "/swagger-ui/**",
                     "/api/v1/webhooks/**",
+                    "/api/v1/gateways/**",
                     "/api/v1/checkout/sessions"
                 ).permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/checkout/sessions/**").permitAll()
