@@ -22,3 +22,8 @@ jwt:
 
 server:
   port: ${PORT:8080}
+
+fluxpay:
+  webhook:
+    worker:
+      enabled: true
