@@ -30,7 +30,7 @@ public class WebhookEventPublisher {
             String payloadJson = objectMapper.writeValueAsString(payload);
             
             // Hardcoding the Jextter endpoint directly to bypass database lookups entirely!
-            String targetUrl = "https://despise-elude-gatherer.ngrok-free.dev/api/fluxpay/webhook";
+            String targetUrl = "https://api.jextter.com/api/fluxpay/webhook";
             String secret = "whsec_9212c402f9e146e4b518d23c80b6829f";
 
             String signature = generateHmacSignature(payloadJson, secret);
