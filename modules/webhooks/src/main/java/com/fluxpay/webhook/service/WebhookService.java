@@ -40,8 +40,9 @@ public class WebhookService {
     }
 
     @Transactional
-    public void deactivateEndpoint(UUID id) {
+    public void deactivateEndpoint(UUID id, UUID callerMerchantId) {
         WebhookEndpoint endpoint = webhookEndpointRepository.findById(id)
+                .filter(e -> e.getMerchantId().equals(callerMerchantId))
                 .orElseThrow(() -> new ResourceNotFoundException("WebhookEndpoint", id.toString()));
         endpoint.setActive(false);
         webhookEndpointRepository.save(endpoint);

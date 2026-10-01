@@ -1,6 +1,13 @@
 spring:
   application:
     name: fluxpay-api
+  config:
+    # Local dev: load secrets from fluxpay-backend/.env (gitignored) when it exists.
+    # Covers running from the repo root or from apps/fluxpay-api (gradle bootRun).
+    # In production the same keys come from real environment variables.
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:../../.env[.properties]
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -10,7 +17,7 @@ spring:
     hibernate:
       ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
+    show-sql: ${SHOW_SQL:false}
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -18,9 +25,18 @@ spring:
   data:
     redis:
       url: ${REDIS_URL:redis://localhost:6379}
+  task:
+    scheduling:
+      pool:
+        # Runs webhook deliveries/retries; one slow merchant endpoint must not block the rest
+        size: 4
+
+jwt:
+  # Required, no default. Generate with: openssl rand -base64 48
+  secret: ${JWT_SECRET}
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 management:
   endpoints:
@@ -29,11 +45,27 @@ management:
         include: health,info,prometheus
 
 fluxpay:
+  # Where the hosted checkout pages live (fluxpay-frontend)
+  frontend-url: ${FLUXPAY_FRONTEND_URL:${NEXT_PUBLIC_FRONTEND_URL:http://localhost:3000}}
+  security:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
   webhook:
-    worker:
-      enabled: ${WEBHOOK_WORKER_ENABLED:true}
+    # Outgoing webhooks are delivered in-process (webhook_deliveries table + WebhookDispatcher).
+    # Temporary override: send every event to one URL instead of per-merchant endpoints.
+    direct:
+      url: ${FLUXPAY_DIRECT_WEBHOOK_URL:}
+      secret: ${FLUXPAY_DIRECT_WEBHOOK_SECRET:}
   gateways:
+    default: ${DEFAULT_GATEWAY:RAZORPAY}
+    razorpay:
+      key-id: ${RAZORPAY_KEY_ID:}
+      key-secret: ${RAZORPAY_KEY_SECRET:}
+      webhook-secret: ${RAZORPAY_WEBHOOK_SECRET:}
     cashfree:
-      app-id: ${CASHFREE_APP_ID:TEST430329ae80e0f32e41a393d78b923034}
-      secret-key: ${CASHFREE_SECRET_KEY:TESTaf195616268bd6202eeb3bf8dc458956e7192a85}
+      enabled: ${CASHFREE_ENABLED:false}
+      app-id: ${CASHFREE_APP_ID:}
+      secret-key: ${CASHFREE_SECRET_KEY:}
       environment: ${CASHFREE_ENVIRONMENT:SANDBOX}
+    payu:
+      # Stub adapter with an unsigned webhook - keep disabled
+      enabled: false

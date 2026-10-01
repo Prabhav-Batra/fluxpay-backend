@@ -1,5 +1,6 @@
 package com.fluxpay.api.webhook.controller;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fluxpay.order.service.OrderFulfillmentService;
@@ -16,6 +17,7 @@ import java.util.Base64;
 import java.util.UUID;
 
 @RestController
+@ConditionalOnProperty(name = "fluxpay.gateways.cashfree.enabled", havingValue = "true")
 @RequestMapping("/api/v1/webhooks/cashfree")
 @RequiredArgsConstructor
 @Slf4j
@@ -43,7 +45,7 @@ public class CashfreeWebhookController {
             sha256_HMAC.init(secret_key);
             String expectedSignature = Base64.getEncoder().encodeToString(sha256_HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8)));
 
-            if (!expectedSignature.equals(signature)) {
+            if (!java.security.MessageDigest.isEqual(expectedSignature.getBytes(StandardCharsets.UTF_8), signature.getBytes(StandardCharsets.UTF_8))) {
                 log.warn("Invalid Cashfree webhook signature");
                 return ResponseEntity.status(401).body("Invalid signature");
             }

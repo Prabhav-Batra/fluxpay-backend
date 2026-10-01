@@ -1,5 +1,6 @@
 package com.fluxpay.api.checkout.service;
 
+import com.fluxpay.external.adapter.RazorpayAdapter;
 import com.fluxpay.order.dto.OrderCreateRequest;
 import com.fluxpay.order.dto.OrderDto;
 import com.fluxpay.order.dto.OrderLineItemRequest;
@@ -13,7 +14,9 @@ import com.fluxpay.api.checkout.dto.CheckoutSessionDto;
 import com.fluxpay.api.checkout.dto.CheckoutSessionRequest;
 import com.fluxpay.api.checkout.dto.CheckoutSessionResponse;
 import com.fluxpay.shared.exception.ResourceNotFoundException;
+import com.fluxpay.order.entity.OrderStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,10 @@ public class CheckoutSessionService {
     private final ProductService productService;
     private final OrderService orderService;
     private final PaymentService paymentService;
+    private final RazorpayAdapter razorpayAdapter;
+
+    @Value("${fluxpay.frontend-url}")
+    private String frontendUrl;
     
     // In-memory cache for demo purposes. 
     // In production, this should be backed by Redis or Database (e.g. CheckoutSession entity)
@@ -63,13 +70,14 @@ public class CheckoutSessionService {
         // 3. Create PaymentIntent via Gateway Router
         ProcessPaymentRequest piRequest = new ProcessPaymentRequest();
         piRequest.setOrderId(order.getId());
-        piRequest.setPreferredGateway("CASHFREE");
+        // preferredGateway left empty -> fluxpay.gateways.default (RAZORPAY)
         piRequest.setReturnUrl(successUrl);
                 
         PaymentIntentDto paymentIntent = paymentService.processPayment(piRequest);
 
         // 4. Create Session
-        
+        boolean razorpay = RazorpayAdapter.PROVIDER.equals(paymentIntent.getGatewayProvider());
+
         CheckoutSessionDto sessionDto = CheckoutSessionDto.builder()
                 .sessionId(sessionId)
                 .merchantId(merchantId)
@@ -79,15 +87,17 @@ public class CheckoutSessionService {
                 .currency(order.getCurrency())
                 .status("open")
                 .orderId(order.getId())
-                .paymentSessionId(paymentIntent.getPaymentLink()) // The CashfreeAdapter stores the session ID in the link field
+                .gateway(paymentIntent.getGatewayProvider())
+                .paymentSessionId(razorpay ? null : paymentIntent.getPaymentLink())
+                .razorpayOrderId(razorpay ? paymentIntent.getGatewayReference() : null)
+                .razorpayKeyId(razorpay ? razorpayAdapter.getKeyId() : null)
+                .amountSubunits(RazorpayAdapter.toSubunits(order.getTotalAmount(), order.getCurrency()))
+                .successUrl(successUrl)
+                .cancelUrl(request.getCancelUrl())
                 .build();
                 
         sessionStore.put(sessionId, sessionDto);
         
-        String frontendUrl = System.getenv("NEXT_PUBLIC_FRONTEND_URL");
-        if (frontendUrl == null) {
-            frontendUrl = "http://localhost:3000";
-        }
         String checkoutUrl = frontendUrl + "/checkout/" + sessionId;
         
         return CheckoutSessionResponse.builder()
@@ -100,6 +110,11 @@ public class CheckoutSessionService {
         CheckoutSessionDto session = sessionStore.get(sessionId);
         if (session == null) {
             throw new ResourceNotFoundException("CheckoutSession", sessionId);
+        }
+        // Reflect payment so a revisited checkout page doesn't offer to pay twice
+        if (!"complete".equals(session.getStatus())
+                && orderService.getOrder(session.getOrderId()).getStatus() == OrderStatus.PAID) {
+            session.setStatus("complete");
         }
         return session;
     }

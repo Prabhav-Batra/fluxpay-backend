@@ -1,28 +1,27 @@
 package com.fluxpay.external.adapter;
 
+import com.fluxpay.external.gateway.GatewayOrder;
 import com.fluxpay.external.gateway.PaymentGatewayPort;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
+/**
+ * Placeholder only - does not call PayU. Disabled unless fluxpay.gateways.payu.enabled=true.
+ */
 @Slf4j
 @Component
+@ConditionalOnProperty(name = "fluxpay.gateways.payu.enabled", havingValue = "true")
 public class PayUAdapter implements PaymentGatewayPort {
 
     @Override
-    public String generatePaymentLink(UUID orderId, BigDecimal amount, String currency, String customerEmail, String returnUrl) {
+    public GatewayOrder createOrder(UUID orderId, BigDecimal amount, String currency, String customerEmail, String returnUrl) {
         log.info("Generating PayU payment link for order: {}", orderId);
         // Placeholder for real API call
-        return "https://pmny.in/" + UUID.randomUUID().toString().substring(0, 8);
-    }
-
-    @Override
-    public boolean verifyPayment(String paymentReference, String signature) {
-        log.info("Verifying PayU payment: {}", paymentReference);
-        // Placeholder for signature verification
-        return true;
+        return new GatewayOrder("https://pmny.in/" + UUID.randomUUID().toString().substring(0, 8), null);
     }
 
     @Override

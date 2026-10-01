@@ -89,6 +89,14 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order", id.toString()));
     }
 
+    @Transactional
+    public OrderDto markPaid(UUID id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", id.toString()));
+        order.setStatus(OrderStatus.PAID);
+        return mapToDto(orderRepository.save(order));
+    }
+
     @Transactional(readOnly = true)
     public List<OrderDto> getOrdersByMerchant(UUID merchantId) {
         return orderRepository.findByMerchantId(merchantId).stream()

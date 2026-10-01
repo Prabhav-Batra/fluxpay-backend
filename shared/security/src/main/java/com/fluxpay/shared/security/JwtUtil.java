@@ -14,7 +14,8 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:defaultSecretKeyWhichShouldBeVeryLongAndSecure1234567890}")
+    // No default: the app must not start with a guessable signing key. Needs >= 32 bytes.
+    @Value("${jwt.secret}")
     private String secret;
 
     @Value("${jwt.expiration:3600000}")

@@ -8,4 +8,5 @@ dependencies {
     api(project(":shared:exceptions"))
     api(project(":shared:utils"))
     api(project(":shared:events"))
+    api(project(":shared:security"))
 }

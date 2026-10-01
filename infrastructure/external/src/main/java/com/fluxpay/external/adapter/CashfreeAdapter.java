@@ -1,7 +1,9 @@
 package com.fluxpay.external.adapter;
 
+import com.fluxpay.external.gateway.GatewayOrder;
 import com.fluxpay.external.gateway.PaymentGatewayPort;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +25,7 @@ import com.fluxpay.shared.exception.BusinessException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "fluxpay.gateways.cashfree.enabled", havingValue = "true")
 public class CashfreeAdapter implements PaymentGatewayPort {
 
     @Value("${fluxpay.gateways.cashfree.app-id}")
@@ -38,7 +41,7 @@ public class CashfreeAdapter implements PaymentGatewayPort {
 
     @Override
     @CircuitBreaker(name = "cashfree", fallbackMethod = "cashfreeFallback")
-    public String generatePaymentLink(UUID orderId, BigDecimal amount, String currency, String customerEmail, String returnUrl) {
+    public GatewayOrder createOrder(UUID orderId, BigDecimal amount, String currency, String customerEmail, String returnUrl) {
         log.info("Generating Cashfree payment session for order: {}", orderId);
         
         String url = "SANDBOX".equalsIgnoreCase(environment) 
@@ -74,26 +77,20 @@ public class CashfreeAdapter implements PaymentGatewayPort {
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 String paymentSessionId = (String) response.getBody().get("payment_session_id");
                 log.info("Successfully generated Cashfree session: {}", paymentSessionId);
-                return paymentSessionId; // We are returning the session ID instead of a link!
+                // Cashfree identifies the order by our own order id
+                return new GatewayOrder(paymentSessionId, orderId.toString());
             }
         } catch (Exception ex) {
             log.error("Failed to call Cashfree API", ex);
-            throw new BusinessException("PAYMENT_GATEWAY_ERROR", "Failed to generate Cashfree session: " + ex.getMessage());
+            throw new BusinessException("Failed to generate Cashfree session: " + ex.getMessage(), "PAYMENT_GATEWAY_ERROR");
         }
         
-        throw new BusinessException("PAYMENT_GATEWAY_ERROR", "Failed to generate Cashfree session: No response body");
+        throw new BusinessException("Failed to generate Cashfree session: No response body", "PAYMENT_GATEWAY_ERROR");
     }
 
-    public String cashfreeFallback(UUID orderId, BigDecimal amount, String currency, String customerEmail, String returnUrl, Throwable t) {
+    public GatewayOrder cashfreeFallback(UUID orderId, BigDecimal amount, String currency, String customerEmail, String returnUrl, Throwable t) {
         log.error("Cashfree circuit breaker activated for order {}. Error: {}", orderId, t.getMessage());
-        throw new BusinessException("GATEWAY_UNAVAILABLE", "Cashfree is currently unavailable. Please try again later.");
-    }
-
-    @Override
-    public boolean verifyPayment(String paymentReference, String signature) {
-        log.info("Verifying Cashfree payment: {}", paymentReference);
-        // We will implement verifyPayment via webhook signature separately in WebhookEventConsumer.
-        return true;
+        throw new BusinessException("Cashfree is currently unavailable. Please try again later.", "GATEWAY_UNAVAILABLE");
     }
 
     @Override

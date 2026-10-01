@@ -4,6 +4,7 @@ import com.fluxpay.external.gateway.PaymentGatewayPort;
 import com.fluxpay.shared.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,8 +17,11 @@ import java.util.stream.Collectors;
 public class GatewayRouter {
 
     private final Map<String, PaymentGatewayPort> gateways;
+    private final String defaultProvider;
 
-    public GatewayRouter(List<PaymentGatewayPort> gatewayList) {
+    public GatewayRouter(List<PaymentGatewayPort> gatewayList,
+                         @Value("${fluxpay.gateways.default:RAZORPAY}") String defaultProvider) {
+        this.defaultProvider = defaultProvider;
         this.gateways = gatewayList.stream()
                 .collect(Collectors.toMap(
                         port -> port.getProviderName().toUpperCase(),
@@ -28,8 +32,7 @@ public class GatewayRouter {
     public PaymentGatewayPort route(String preferredProvider) {
         if (preferredProvider == null || preferredProvider.isBlank()) {
             // Default routing logic could go here (e.g. cheapest provider)
-            // For now, default to CASHFREE
-            preferredProvider = "CASHFREE";
+            preferredProvider = defaultProvider;
         }
 
         PaymentGatewayPort gateway = gateways.get(preferredProvider.toUpperCase());

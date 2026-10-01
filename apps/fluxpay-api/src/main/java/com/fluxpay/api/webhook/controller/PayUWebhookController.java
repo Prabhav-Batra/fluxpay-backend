@@ -1,5 +1,6 @@
 package com.fluxpay.api.webhook.controller;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import com.fluxpay.payment.repository.PaymentIntentRepository;
 import com.fluxpay.payment.entity.PaymentIntent;
 import com.fluxpay.payment.entity.PaymentIntentStatus;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.UUID;
 
+// WARNING: does not verify a PayU signature - anyone could mark orders paid. Never enable in production.
 @RestController
+@ConditionalOnProperty(name = "fluxpay.gateways.payu.enabled", havingValue = "true")
 @RequestMapping("/api/v1/webhooks/payu")
 @RequiredArgsConstructor
 public class PayUWebhookController {

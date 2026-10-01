@@ -49,6 +49,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    Object merchantId = jwtUtil.extractClaim(jwt, claims -> claims.get("merchantId"));
+                    if (merchantId != null) {
+                        request.setAttribute(CurrentMerchant.REQUEST_ATTRIBUTE, merchantId.toString());
+                    }
                 }
             }
         } catch (Exception ex) {

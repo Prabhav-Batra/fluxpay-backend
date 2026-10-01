@@ -17,13 +17,7 @@ spring:
       url: ${REDIS_URL}
 
 jwt:
-  secret: ${JWT_SECRET}
   expiration: 86400000 # 24 hours in prod
 
 server:
   port: ${PORT:8080}
-
-fluxpay:
-  webhook:
-    worker:
-      enabled: true

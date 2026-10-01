@@ -43,5 +43,6 @@ out/
 *.log
 .env
 .env.*
+!.env.example
 .projectos
 

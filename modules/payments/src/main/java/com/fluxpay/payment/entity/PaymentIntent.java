@@ -31,6 +31,10 @@ public class PaymentIntent {
     @Column(name = "gateway_reference")
     private String gatewayReference;
 
+    // Gateway's id for the successful payment (e.g. Razorpay pay_xxx) - needed for refunds/reconciliation
+    @Column(name = "gateway_payment_id")
+    private String gatewayPaymentId;
+
     @Column(nullable = false)
     private BigDecimal amount;
 

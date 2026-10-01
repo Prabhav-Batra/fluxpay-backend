@@ -1,5 +1,6 @@
 package com.fluxpay.payment.service;
 
+import com.fluxpay.external.gateway.GatewayOrder;
 import com.fluxpay.external.gateway.PaymentGatewayPort;
 import com.fluxpay.gatewayframework.service.GatewayRouter;
 import com.fluxpay.order.dto.OrderDto;
@@ -40,16 +41,18 @@ public class PaymentService {
         // 1. Route to Gateway
         PaymentGatewayPort gateway = gatewayRouter.route(request.getPreferredGateway());
 
-        // 2. Generate Payment Link
-        String paymentLink;
+        // 2. Create the order at the gateway
+        GatewayOrder gatewayOrder;
         try {
-            paymentLink = gateway.generatePaymentLink(
+            gatewayOrder = gateway.createOrder(
                     order.getId(),
                     order.getTotalAmount(),
                     order.getCurrency(),
                     order.getCustomerEmail(),
                     request.getReturnUrl()
             );
+        } catch (BusinessException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new BusinessException("Gateway failed to generate payment link", "GATEWAY_ERROR");
         }
@@ -58,6 +61,7 @@ public class PaymentService {
         PaymentIntent intent = PaymentIntent.builder()
                 .orderId(order.getId())
                 .gatewayProvider(gateway.getProviderName())
+                .gatewayReference(gatewayOrder.gatewayOrderId())
                 .amount(order.getTotalAmount())
                 .currency(order.getCurrency())
                 .status(PaymentIntentStatus.INITIATED)
@@ -73,7 +77,7 @@ public class PaymentService {
 
         // Map and include the volatile paymentLink
         PaymentIntentDto dto = mapToDto(intent);
-        dto.setPaymentLink(paymentLink);
+        dto.setPaymentLink(gatewayOrder.clientToken());
         return dto;
     }
 

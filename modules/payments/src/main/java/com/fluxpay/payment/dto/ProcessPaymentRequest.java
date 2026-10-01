@@ -10,7 +10,7 @@ public class ProcessPaymentRequest {
     @NotNull(message = "Order ID is required")
     private UUID orderId;
 
-    private String preferredGateway; // Optional, e.g. "CASHFREE" or "PAYU"
+    private String preferredGateway; // Optional, e.g. "RAZORPAY"; defaults to fluxpay.gateways.default
     
     private String returnUrl;
 }

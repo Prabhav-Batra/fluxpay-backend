@@ -1,5 +1,7 @@
 package com.fluxpay.webhook.controller;
 
+import com.fluxpay.shared.security.CurrentMerchant;
+import jakarta.servlet.http.HttpServletRequest;
 import com.fluxpay.shared.dto.ApiResponse;
 import com.fluxpay.webhook.dto.CreateWebhookRequest;
 import com.fluxpay.webhook.dto.WebhookEndpointDto;
@@ -21,21 +23,25 @@ public class WebhookController {
     private final WebhookService webhookService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<WebhookEndpointDto>> createEndpoint(@Valid @RequestBody CreateWebhookRequest request) {
+    public ResponseEntity<ApiResponse<WebhookEndpointDto>> createEndpoint(@Valid @RequestBody CreateWebhookRequest request,
+                                                                          HttpServletRequest httpRequest) {
+        CurrentMerchant.assertIs(httpRequest, request.getMerchantId());
         WebhookEndpointDto endpoint = webhookService.createEndpoint(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(endpoint, "Webhook endpoint created successfully"));
     }
 
     @GetMapping("/merchant/{merchantId}")
-    public ResponseEntity<ApiResponse<List<WebhookEndpointDto>>> getActiveEndpoints(@PathVariable UUID merchantId) {
+    public ResponseEntity<ApiResponse<List<WebhookEndpointDto>>> getActiveEndpoints(@PathVariable UUID merchantId,
+                                                                                 HttpServletRequest httpRequest) {
+        CurrentMerchant.assertIs(httpRequest, merchantId);
         List<WebhookEndpointDto> endpoints = webhookService.getActiveEndpoints(merchantId);
         return ResponseEntity.ok(ApiResponse.success(endpoints));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deactivateEndpoint(@PathVariable UUID id) {
-        webhookService.deactivateEndpoint(id);
+    public ResponseEntity<ApiResponse<Void>> deactivateEndpoint(@PathVariable UUID id, HttpServletRequest httpRequest) {
+        webhookService.deactivateEndpoint(id, CurrentMerchant.require(httpRequest));
         return ResponseEntity.ok(ApiResponse.success(null, "Webhook endpoint deactivated"));
     }
 }

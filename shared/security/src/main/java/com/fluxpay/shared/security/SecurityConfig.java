@@ -34,9 +34,15 @@ public class SecurityConfig {
                     "/actuator/health", 
                     "/v3/api-docs/**", 
                     "/swagger-ui/**",
-                    "/api/v1/webhooks/**",
-                    "/api/v1/gateways/**",
                     "/api/v1/checkout/sessions"
+                ).permitAll()
+                // Inbound gateway callbacks: authenticated by their own signatures, not JWT.
+                // Merchant webhook management (/api/v1/webhooks, /api/v1/webhooks/merchant/**) stays behind JWT.
+                .requestMatchers(org.springframework.http.HttpMethod.POST,
+                    "/api/v1/webhooks/razorpay",
+                    "/api/v1/webhooks/cashfree",
+                    "/api/v1/webhooks/payu",
+                    "/api/v1/payments/razorpay/verify"
                 ).permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/checkout/sessions/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/products/**").permitAll()
