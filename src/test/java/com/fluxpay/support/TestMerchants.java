@@ -63,4 +63,28 @@ public final class TestMerchants {
                 .andReturn();
         return JsonPath.read(result.getResponse().getContentAsString(), "$.id");
     }
+
+    public static String createCheckoutSession(MockMvc mockMvc, String apiKey, String productId, String customerRef)
+            throws Exception {
+        String body =
+                """
+                {"product_id":"%s","customer_ref":"%s","success_url":"https://jextter.com/paid",\
+                "cancel_url":"https://jextter.com/store","metadata":{"order":"42"}}"""
+                        .formatted(productId, customerRef);
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/checkout_sessions")
+                        .header("Authorization", "Bearer " + apiKey)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andReturn();
+        return JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    }
+
+    public static String pay(MockMvc mockMvc, String sessionId) throws Exception {
+        MvcResult result = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/public/checkout_sessions/" + sessionId + "/pay"))
+                .andExpect(status().isOk())
+                .andReturn();
+        return JsonPath.read(result.getResponse().getContentAsString(), "$.order_id");
+    }
 }

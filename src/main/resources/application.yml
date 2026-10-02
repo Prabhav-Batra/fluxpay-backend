@@ -83,3 +83,5 @@ fluxpay:
       key-id: ${RAZORPAY_LIVE_KEY_ID:}
       key-secret: ${RAZORPAY_LIVE_KEY_SECRET:}
       webhook-secret: ${RAZORPAY_LIVE_WEBHOOK_SECRET:}
+  checkout:
+    session-ttl: 30m
