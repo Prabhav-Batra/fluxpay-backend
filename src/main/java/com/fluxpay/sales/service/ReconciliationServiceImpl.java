@@ -12,7 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/** Spec §6 step 5. Not transactional: gateway calls never run inside a transaction; capture opens its own. */
+/**
+ * Spec §6 step 5. Not transactional: gateway calls never run inside a transaction; capture opens its own.
+ * Sessions rotate by last check time and stop being polled once they are past expiry plus a grace period.
+ */
 @Service
 public class ReconciliationServiceImpl implements ReconciliationService {
 
@@ -42,7 +45,9 @@ public class ReconciliationServiceImpl implements ReconciliationService {
     public int reconcile() {
         Instant now = Instant.now(clock);
         List<CheckoutSessionView> candidates = checkoutService.findReconcilable(
-                now.minus(properties.reconciliationWindow()), now.minus(properties.reconciliationMinAge()), BATCH_SIZE);
+                now.minus(properties.reconciliationMinAge()),
+                now.minus(properties.reconciliationGraceAfterExpiry()),
+                BATCH_SIZE);
         for (CheckoutSessionView session : candidates) {
             try {
                 for (GatewayPayment payment : gateway.fetchOrderPayments(session.mode(), session.gatewayOrderId())) {
@@ -52,6 +57,8 @@ public class ReconciliationServiceImpl implements ReconciliationService {
                 }
             } catch (RuntimeException e) {
                 log.warn("Reconciliation failed for checkout session {}", session.id(), e);
+            } finally {
+                checkoutService.markReconciled(session.id(), now);
             }
         }
         return candidates.size();

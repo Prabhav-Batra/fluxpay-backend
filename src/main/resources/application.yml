@@ -100,5 +100,5 @@ fluxpay:
     expiry-interval: 1m
     reconciliation-interval: 5m
     reconciliation-min-age: 10m
-    reconciliation-window: 24h
+    reconciliation-grace-after-expiry: 1h
     idempotency-retention: 24h

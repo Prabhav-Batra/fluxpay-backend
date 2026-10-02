@@ -82,4 +82,21 @@ class JobsIntegrationTest extends AbstractIntegrationTest {
         reconciliationService.reconcile();
         assertThat(count("SELECT count(*) FROM sales")).isZero();
     }
+
+    @Test
+    void should_reach_recent_paid_session_despite_backlog_of_abandoned_ones() throws Exception {
+        String orderId = TestMerchants.pay(mockMvc, sessionId);
+        paymentGateway.addPayment(new GatewayPayment("pay_recent", orderId, 4900, "INR", "captured", "upi", 116));
+        jdbcTemplate.update("UPDATE checkout_sessions SET created_at = now() - interval '15 minutes'");
+        jdbcTemplate.update("INSERT INTO checkout_sessions (id, merchant_id, mode, product_id, amount, currency,"
+                + " metadata, status, gateway_order_id, expires_at, created_at)"
+                + " SELECT gen_random_uuid(), merchant_id, mode, product_id, amount, currency, metadata, 'OPEN',"
+                + " 'order_abandoned_' || g, now() + interval '5 minutes', now() - interval '25 minutes'"
+                + " FROM checkout_sessions, generate_series(1, 100) g");
+
+        reconciliationService.reconcile();
+        reconciliationService.reconcile();
+
+        assertThat(count("SELECT count(*) FROM sales")).isEqualTo(1);
+    }
 }

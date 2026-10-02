@@ -1,5 +1,6 @@
 package com.fluxpay.sales.service;
 
+import com.fluxpay.common.error.FluxpayException;
 import com.fluxpay.common.tenant.Mode;
 import com.fluxpay.common.tenant.TenantContext;
 import com.fluxpay.events.domain.EventType;
@@ -48,10 +49,18 @@ public class SaleRefundServiceImpl implements SaleRefundService {
     @Transactional
     public void refund(Mode mode, GatewayRefund refund) {
         Optional<RecordedPayment> payment = paymentRecords.findByGatewayPaymentId(refund.paymentId());
-        if (payment.isEmpty()
-                || payment.get().status() != PaymentStatus.CAPTURED
-                || payment.get().mode() != mode) {
-            log.warn("Refund {} for payment {} has no matching sale", refund.id(), refund.paymentId());
+        if (payment.isEmpty()) {
+            // Razorpay does not guarantee ordering and the capture may still be pending reconciliation:
+            // a non-2xx response makes Razorpay redeliver this refund later instead of it being lost.
+            log.warn(
+                    "Refund {} arrived before payment {} was recorded; asking for redelivery",
+                    refund.id(),
+                    refund.paymentId());
+            throw FluxpayException.conflict(
+                    "PAYMENT_NOT_YET_RECORDED", "The refunded payment is not recorded yet, retry later");
+        }
+        if (payment.get().status() != PaymentStatus.CAPTURED || payment.get().mode() != mode) {
+            log.warn("Refund {} for flagged or other-mode payment {} ignored", refund.id(), refund.paymentId());
             return;
         }
         Optional<Sale> locked = sales.lockByPaymentId(payment.get().id());

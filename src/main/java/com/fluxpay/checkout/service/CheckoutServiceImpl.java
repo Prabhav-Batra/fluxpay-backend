@@ -191,16 +191,22 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CheckoutSessionView> findReconcilable(Instant createdAfter, Instant createdBefore, int limit) {
+    public List<CheckoutSessionView> findReconcilable(Instant createdBefore, Instant expiredAfter, int limit) {
         return sessions
                 .findReconcilable(
                         List.of(CheckoutStatus.OPEN, CheckoutStatus.EXPIRED),
-                        createdAfter,
                         createdBefore,
+                        expiredAfter,
                         Limit.of(limit))
                 .stream()
                 .map(this::view)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public void markReconciled(UUID sessionId, Instant now) {
+        sessions.markReconciled(sessionId, now);
     }
 
     /** Gateway call happens outside any transaction; the conditional update makes concurrent calls converge. */

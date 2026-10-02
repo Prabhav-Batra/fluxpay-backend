@@ -2,6 +2,7 @@ package com.fluxpay.common.idempotency;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fluxpay.common.error.FluxpayException;
 import com.fluxpay.common.tenant.TenantContext;
 import java.nio.charset.StandardCharsets;
@@ -29,11 +30,13 @@ public class IdempotencyService {
 
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
+    private final ObjectMapper canonicalMapper;
     private final Clock clock;
 
     public IdempotencyService(JdbcTemplate jdbc, ObjectMapper objectMapper, Clock clock) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
+        this.canonicalMapper = objectMapper.copy().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         this.clock = clock;
     }
 
@@ -45,7 +48,7 @@ public class IdempotencyService {
             throw FluxpayException.badRequest(
                     "INVALID_IDEMPOTENCY_KEY", "Idempotency-Key must be 1-" + MAX_KEY_LENGTH + " characters");
         }
-        String requestHash = sha256Hex(write(request));
+        String requestHash = sha256Hex(canonical(request));
         int claimed = jdbc.update(
                 "INSERT INTO idempotency_keys (merchant_id, mode, idempotency_key, request_hash, created_at)"
                         + " VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING",
@@ -115,6 +118,15 @@ public class IdempotencyService {
             return objectMapper.readValue(body.toString(), responseType);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Stored idempotent response cannot be read", e);
+        }
+    }
+
+    /** Map keys sorted so a retry that rebuilds the same body in a different key order still matches. */
+    private String canonical(Object request) {
+        try {
+            return canonicalMapper.writeValueAsString(request);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Cannot serialise for idempotency", e);
         }
     }
 

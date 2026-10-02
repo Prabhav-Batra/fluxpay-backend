@@ -12,5 +12,5 @@ public record JobsProperties(
         @NotNull Duration expiryInterval,
         @NotNull Duration reconciliationInterval,
         @NotNull Duration reconciliationMinAge,
-        @NotNull Duration reconciliationWindow,
+        @NotNull Duration reconciliationGraceAfterExpiry,
         @NotNull Duration idempotencyRetention) {}

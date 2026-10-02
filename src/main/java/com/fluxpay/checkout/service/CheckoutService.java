@@ -27,5 +27,11 @@ public interface CheckoutService {
     /** Expires up to {@code limit} open sessions past their expiry in the caller's transaction. */
     List<CheckoutSessionView> expireDue(Instant now, int limit);
 
-    List<CheckoutSessionView> findReconcilable(Instant createdAfter, Instant createdBefore, int limit);
+    /**
+     * Open or expired sessions with a gateway order, created before {@code createdBefore} and expiring no earlier
+     * than {@code expiredAfter}, least-recently reconciled first.
+     */
+    List<CheckoutSessionView> findReconcilable(Instant createdBefore, Instant expiredAfter, int limit);
+
+    void markReconciled(UUID sessionId, Instant now);
 }

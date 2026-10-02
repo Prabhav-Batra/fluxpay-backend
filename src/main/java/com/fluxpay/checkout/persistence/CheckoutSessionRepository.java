@@ -38,11 +38,17 @@ public interface CheckoutSessionRepository extends Repository<CheckoutSession, U
     List<CheckoutSession> lockDueForExpiry(
             @Param("status") CheckoutStatus status, @Param("now") Instant now, Limit limit);
 
+    /** Least-recently checked first, so a backlog of abandoned checkouts cannot starve newer sessions. */
     @Query("select s from CheckoutSession s where s.gatewayOrderId is not null and s.status in :statuses"
-            + " and s.createdAt >= :from and s.createdAt <= :to order by s.createdAt")
+            + " and s.createdAt <= :createdBefore and s.expiresAt >= :expiredAfter"
+            + " order by s.lastReconciledAt asc nulls first, s.createdAt asc")
     List<CheckoutSession> findReconcilable(
             @Param("statuses") Collection<CheckoutStatus> statuses,
-            @Param("from") Instant from,
-            @Param("to") Instant to,
+            @Param("createdBefore") Instant createdBefore,
+            @Param("expiredAfter") Instant expiredAfter,
             Limit limit);
+
+    @Modifying
+    @Query("update CheckoutSession s set s.lastReconciledAt = :now where s.id = :id")
+    int markReconciled(@Param("id") UUID id, @Param("now") Instant now);
 }

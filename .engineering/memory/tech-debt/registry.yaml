@@ -46,3 +46,15 @@
   impact: "Medium - customer money held without a sale until someone refunds it in Razorpay."
   location: "src/main/java/com/fluxpay/sales/service/SaleCaptureServiceImpl.java"
   status: "open"
+- id: TD-009
+  date: "2026-10-02"
+  description: "Plan 2 review minors: idempotency key can stick in-progress after a crash; public view reports expired while a payment is in flight (frontend must keep polling); concurrent-capture test doesn't assert statuses; missing cross-tenant tests for payment links, ledger entries and dashboard sales list; Razorpay 401/400 reported as GATEWAY_UNAVAILABLE; expiry job capped at 100/min."
+  impact: "Low - edge cases, observability and test coverage."
+  location: "common/idempotency, checkout, payments, sales, tests"
+  status: "open"
+- id: TD-010
+  date: "2026-10-02"
+  description: "Real Razorpay order creation and order-payments lookup not yet verified end to end: the legacy test keys return 401. Re-run the Plan 2 Task 13 smoke test with current test keys."
+  impact: "High until verified - live checkout depends on it."
+  location: "src/main/java/com/fluxpay/payments/service/RazorpayGateway.java"
+  status: "open"

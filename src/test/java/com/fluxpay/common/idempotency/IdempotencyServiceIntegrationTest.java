@@ -12,6 +12,8 @@ import com.fluxpay.support.AbstractIntegrationTest;
 import com.fluxpay.support.TestMerchants;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,8 @@ class IdempotencyServiceIntegrationTest extends AbstractIntegrationTest {
     record Request(String productId, long amount) {}
 
     record Response(String id, long amount) {}
+
+    record RequestWithMetadata(String productId, Map<String, String> metadata) {}
 
     @Autowired
     private IdempotencyService idempotency;
@@ -113,5 +117,31 @@ class IdempotencyServiceIntegrationTest extends AbstractIntegrationTest {
         int deleted = idempotency.deleteOlderThan(Instant.parse("2021-01-01T00:00:00Z"));
 
         assertThat(deleted).isEqualTo(1);
+    }
+
+    @Test
+    void should_replay_when_retry_sends_same_metadata_in_different_key_order() {
+        Map<String, String> ab = new LinkedHashMap<>();
+        ab.put("a", "1");
+        ab.put("b", "2");
+        Map<String, String> ba = new LinkedHashMap<>();
+        ba.put("b", "2");
+        ba.put("a", "1");
+
+        Response first = idempotency.execute(
+                tenant,
+                "key-1",
+                new RequestWithMetadata("prod_1", ab),
+                Response.class,
+                () -> new Response("cs_" + calls.incrementAndGet(), 4900));
+        Response retry = idempotency.execute(
+                tenant,
+                "key-1",
+                new RequestWithMetadata("prod_1", ba),
+                Response.class,
+                () -> new Response("cs_" + calls.incrementAndGet(), 4900));
+
+        assertThat(retry).isEqualTo(first);
+        assertThat(calls).hasValue(1);
     }
 }
