@@ -102,3 +102,9 @@ fluxpay:
     reconciliation-min-age: 10m
     reconciliation-grace-after-expiry: 1h
     idempotency-retention: 24h
+    webhook-interval: 10s
+  webhooks:
+    connect-timeout: 5s
+    read-timeout: 10s
+    lease: 2m
+    batch-size: 50
