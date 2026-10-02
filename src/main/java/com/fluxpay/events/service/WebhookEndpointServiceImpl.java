@@ -31,16 +31,19 @@ public class WebhookEndpointServiceImpl implements WebhookEndpointService {
     private final WebhookEndpointRepository endpoints;
     private final EventRepository events;
     private final WebhookDeliveryRepository deliveries;
+    private final WebhookProperties properties;
     private final Clock clock;
 
     public WebhookEndpointServiceImpl(
             WebhookEndpointRepository endpoints,
             EventRepository events,
             WebhookDeliveryRepository deliveries,
+            WebhookProperties properties,
             Clock clock) {
         this.endpoints = endpoints;
         this.events = events;
         this.deliveries = deliveries;
+        this.properties = properties;
         this.clock = clock;
     }
 
@@ -57,7 +60,7 @@ public class WebhookEndpointServiceImpl implements WebhookEndpointService {
     @Override
     @Transactional
     public IssuedWebhookEndpoint create(TenantContext tenant, String url) {
-        WebhookUrlPolicy.validate(tenant.mode(), url);
+        WebhookUrlPolicy.validate(tenant.mode(), url, properties.allowLoopback());
         if (endpoints.countByMerchantIdAndModeAndDeletedAtIsNull(tenant.merchantId(), tenant.mode())
                 >= MAX_ENDPOINTS_PER_MODE) {
             throw FluxpayException.validation(
@@ -75,7 +78,7 @@ public class WebhookEndpointServiceImpl implements WebhookEndpointService {
         WebhookEndpoint endpoint = find(tenant, endpointId);
         Instant now = Instant.now(clock);
         if (url != null) {
-            WebhookUrlPolicy.validate(tenant.mode(), url);
+            WebhookUrlPolicy.validate(tenant.mode(), url, properties.allowLoopback());
             endpoint.changeUrl(url, now);
         }
         if (enabled != null) {

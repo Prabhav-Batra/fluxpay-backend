@@ -36,7 +36,7 @@ public class WebhookDispatcherImpl implements WebhookDispatcher {
 
     private static final Logger log = LoggerFactory.getLogger(WebhookDispatcherImpl.class);
 
-    private record Claim(UUID deliveryId, UUID eventId, UUID endpointId, int attempts) {}
+    private record Claim(UUID deliveryId, UUID eventId, UUID endpointId, UUID token) {}
 
     private record Outcome(Integer statusCode, String error) {
         boolean succeeded() {
@@ -82,12 +82,9 @@ public class WebhookDispatcherImpl implements WebhookDispatcher {
     private List<Claim> claim(Instant now) {
         return deliveries.lockDue(now, properties.batchSize()).stream()
                 .map(delivery -> {
-                    delivery.lease(now.plus(properties.lease()));
-                    return new Claim(
-                            delivery.getId(),
-                            delivery.getEventId(),
-                            delivery.getEndpointId(),
-                            delivery.getAttemptCount());
+                    UUID token = UUID.randomUUID();
+                    delivery.lease(now.plus(properties.lease()), token);
+                    return new Claim(delivery.getId(), delivery.getEventId(), delivery.getEndpointId(), token);
                 })
                 .toList();
     }
@@ -101,11 +98,28 @@ public class WebhookDispatcherImpl implements WebhookDispatcher {
             record(claim, outcome, true);
             return;
         }
-        if (!WebhookUrlPolicy.isAllowed(endpoint.get().getMode(), endpoint.get().getUrl())) {
+        if (!WebhookUrlPolicy.isAllowed(
+                endpoint.get().getMode(), endpoint.get().getUrl(), properties.allowLoopback())) {
             record(claim, new Outcome(null, "Endpoint URL is not allowed"), true);
             return;
         }
+        if (!renewLease(claim)) {
+            return;
+        }
         record(claim, send(endpoint.get(), event.get()), false);
+    }
+
+    /** Re-leases just before sending so a long batch cannot outlive its lease; false if another dispatcher took it. */
+    private boolean renewLease(Claim claim) {
+        Boolean renewed = transaction.execute(status -> {
+            WebhookDelivery delivery = deliveries.findById(claim.deliveryId()).orElseThrow();
+            if (!delivery.isLeasedBy(claim.token())) {
+                return false;
+            }
+            delivery.lease(Instant.now(clock).plus(properties.lease()), claim.token());
+            return true;
+        });
+        return Boolean.TRUE.equals(renewed);
     }
 
     private Outcome send(WebhookEndpoint endpoint, Event event) {
@@ -132,13 +146,17 @@ public class WebhookDispatcherImpl implements WebhookDispatcher {
         transaction.executeWithoutResult(status -> {
             Instant now = Instant.now(clock);
             WebhookDelivery delivery = deliveries.findById(claim.deliveryId()).orElseThrow();
+            if (!delivery.isLeasedBy(claim.token())) {
+                log.warn("Discarding outcome for webhook delivery {}: lease lost", claim.deliveryId());
+                return;
+            }
             if (outcome.succeeded()) {
                 delivery.succeeded(outcome.statusCode(), now);
                 return;
             }
             Instant retryAt = terminal
                     ? null
-                    : RetrySchedule.delayAfterAttempt(claim.attempts() + 1)
+                    : RetrySchedule.delayAfterAttempt(delivery.getAttemptCount() + 1)
                             .map(now::plus)
                             .orElse(null);
             delivery.failed(outcome.statusCode(), outcome.error(), retryAt, now);

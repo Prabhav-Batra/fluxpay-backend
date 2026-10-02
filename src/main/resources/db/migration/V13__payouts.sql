@@ -11,3 +11,4 @@ CREATE TABLE payouts (
 );
 
 CREATE INDEX payouts_merchant_mode_idx ON payouts (merchant_id, mode, id DESC);
+CREATE UNIQUE INDEX payouts_reference_uq ON payouts (merchant_id, mode, reference);

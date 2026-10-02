@@ -21,6 +21,7 @@ CREATE TABLE webhook_deliveries (
     status           VARCHAR(20)  NOT NULL CHECK (status IN ('PENDING', 'SUCCEEDED', 'FAILED')),
     attempt_count    INTEGER      NOT NULL,
     next_attempt_at  TIMESTAMPTZ,
+    lease_token      UUID,
     last_status_code INTEGER,
     last_error       VARCHAR(500),
     last_attempt_at  TIMESTAMPTZ,

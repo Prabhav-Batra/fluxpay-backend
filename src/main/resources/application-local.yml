@@ -3,3 +3,7 @@ server:
     session:
       cookie:
         secure: false
+
+fluxpay:
+  webhooks:
+    allow-loopback: true

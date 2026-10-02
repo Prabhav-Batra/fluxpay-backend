@@ -23,3 +23,5 @@ fluxpay:
       webhook-secret: whsec_fake_test
   jobs:
     enabled: false
+  webhooks:
+    allow-loopback: true

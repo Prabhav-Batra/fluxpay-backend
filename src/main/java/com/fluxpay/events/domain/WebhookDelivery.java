@@ -44,6 +44,9 @@ public class WebhookDelivery {
     @Column(name = "next_attempt_at")
     private Instant nextAttemptAt;
 
+    @Column(name = "lease_token")
+    private UUID leaseToken;
+
     @Column(name = "last_status_code")
     private Integer lastStatusCode;
 
@@ -73,8 +76,14 @@ public class WebhookDelivery {
         this.updatedAt = now;
     }
 
-    public void lease(Instant until) {
+    /** Claims the delivery until {@code until}; only the holder of {@code token} may record the outcome. */
+    public void lease(Instant until, UUID token) {
         this.nextAttemptAt = until;
+        this.leaseToken = token;
+    }
+
+    public boolean isLeasedBy(UUID token) {
+        return status == DeliveryStatus.PENDING && token.equals(leaseToken);
     }
 
     public void succeeded(int statusCode, Instant now) {

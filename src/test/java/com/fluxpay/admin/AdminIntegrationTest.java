@@ -137,4 +137,13 @@ class AdminIntegrationTest extends AbstractIntegrationTest {
     void should_forbid_merchant_owners() throws Exception {
         mockMvc.perform(get(MERCHANTS).cookie(jextter.session())).andExpect(status().isForbidden());
     }
+
+    @Test
+    void should_reject_duplicate_payout_reference() throws Exception {
+        payout("{\"mode\":\"test\",\"amount\":1000,\"reference\":\"UTR9\"}").andExpect(status().isCreated());
+
+        payout("{\"mode\":\"test\",\"amount\":1000,\"reference\":\"UTR9\"}")
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error.code").value("DUPLICATE_PAYOUT"));
+    }
 }

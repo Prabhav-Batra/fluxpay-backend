@@ -58,3 +58,9 @@
   impact: "High until verified - live checkout depends on it."
   location: "src/main/java/com/fluxpay/payments/service/RazorpayGateway.java"
   status: "open"
+- id: TD-011
+  date: "2026-10-02"
+  description: "Plan 3 review minors: one merchant's slow endpoint can delay a dispatch batch (no per-endpoint concurrency cap; resend/test unthrottled); non-RestClient exceptions during send are not counted as attempts; endpoint-limit check races; timeseries/top-products count refunded sales as gross; invalid admin payouts ?mode silently means live; Razorpay refunds can push a balance below zero after a payout; webhook endpoint ports unrestricted."
+  impact: "Low - fairness, edge cases and labelling."
+  location: "events, analytics, admin"
+  status: "open"

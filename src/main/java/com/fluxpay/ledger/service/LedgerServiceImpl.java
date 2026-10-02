@@ -100,6 +100,9 @@ public class LedgerServiceImpl implements LedgerService {
     public PayoutView recordPayout(TenantContext tenant, NewPayout request) {
         merchantService.get(tenant.merchantId());
         payouts.lockBalance(tenant.merchantId().toString(), tenant.mode().name());
+        if (payouts.existsByMerchantIdAndModeAndReference(tenant.merchantId(), tenant.mode(), request.reference())) {
+            throw FluxpayException.conflict("DUPLICATE_PAYOUT", "A payout with this reference is already recorded");
+        }
         if (request.amount() > balance(tenant).available()) {
             throw FluxpayException.conflict("INSUFFICIENT_BALANCE", "Payout exceeds the available balance");
         }

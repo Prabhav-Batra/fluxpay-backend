@@ -32,6 +32,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.bucket4j:bucket4j_jdk17-core:8.14.0")
     implementation("com.github.ben-manes.caffeine:caffeine")
+    implementation("org.apache.httpcomponents.client5:httpclient5")
     runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

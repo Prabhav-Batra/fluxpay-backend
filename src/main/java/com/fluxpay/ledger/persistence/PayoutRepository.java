@@ -13,6 +13,8 @@ public interface PayoutRepository extends Repository<Payout, UUID> {
 
     Payout save(Payout payout);
 
+    boolean existsByMerchantIdAndModeAndReference(UUID merchantId, Mode mode, String reference);
+
     @Query("select p from Payout p where p.merchantId = :merchantId and p.mode = :mode and p.id < :before"
             + " order by p.id desc")
     List<Payout> page(

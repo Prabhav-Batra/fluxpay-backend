@@ -108,5 +108,6 @@ fluxpay:
     read-timeout: 10s
     lease: 2m
     batch-size: 50
+    allow-loopback: false
   analytics:
     timezone: Asia/Kolkata
