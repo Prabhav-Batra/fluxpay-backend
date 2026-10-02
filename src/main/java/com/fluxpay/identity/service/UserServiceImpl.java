@@ -42,15 +42,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
-    public DashboardPrincipal createMerchantOwner(String email, String rawPassword, UUID merchantId) {
-        String normalized = UserService.normalizeEmail(email);
+    public HashedPassword hashPassword(String rawPassword) {
         PasswordPolicy.validate(rawPassword);
+        return new HashedPassword(passwordEncoder.encode(rawPassword));
+    }
+
+    @Override
+    @Transactional
+    public DashboardPrincipal createMerchantOwner(String email, HashedPassword password, UUID merchantId) {
+        String normalized = UserService.normalizeEmail(email);
         if (users.existsByEmail(normalized)) {
             throw emailTaken();
         }
-        UserAccount account = UserAccount.merchantOwner(
-                normalized, passwordEncoder.encode(rawPassword), merchantId, Instant.now(clock));
+        UserAccount account = UserAccount.merchantOwner(normalized, password.value(), merchantId, Instant.now(clock));
         try {
             return toPrincipal(users.saveAndFlush(account));
         } catch (DataIntegrityViolationException e) {
@@ -59,7 +63,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public DashboardPrincipal authenticate(String email, String rawPassword) {
         Optional<UserAccount> account = users.findByEmail(UserService.normalizeEmail(email));
         String hash = account.map(UserAccount::getPasswordHash).orElse(dummyHash);
@@ -71,15 +74,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public void ensurePlatformAdmin(String email, String rawPassword) {
         String normalized = UserService.normalizeEmail(email);
         if (users.existsByEmail(normalized)) {
             log.info("Platform admin bootstrap skipped: user already exists");
             return;
         }
-        PasswordPolicy.validate(rawPassword);
-        users.save(UserAccount.platformAdmin(normalized, passwordEncoder.encode(rawPassword), Instant.now(clock)));
+        HashedPassword password = hashPassword(rawPassword);
+        users.save(UserAccount.platformAdmin(normalized, password.value(), Instant.now(clock)));
         log.info("Platform admin created");
     }
 

@@ -11,10 +11,19 @@ public interface UserService {
      */
     void reserveEmail(String email);
 
-    /** Creates the owner login for a new merchant. Throws EMAIL_TAKEN (conflict) when the email exists. */
-    DashboardPrincipal createMerchantOwner(String email, String rawPassword, UUID merchantId);
+    /**
+     * Validates against {@link PasswordPolicy} and bcrypt-hashes the password. Call outside any transaction:
+     * hashing is slow and must not hold a pooled connection.
+     */
+    HashedPassword hashPassword(String rawPassword);
 
-    /** Throws INVALID_CREDENTIALS (unauthenticated) for an unknown email or wrong password. */
+    /** Creates the owner login for a new merchant. Throws EMAIL_TAKEN (conflict) when the email exists. */
+    DashboardPrincipal createMerchantOwner(String email, HashedPassword password, UUID merchantId);
+
+    /**
+     * Throws INVALID_CREDENTIALS (unauthenticated) for an unknown email or wrong password. Verifies the hash
+     * outside any transaction.
+     */
     DashboardPrincipal authenticate(String email, String rawPassword);
 
     /** Creates the platform admin if no user with that email exists; otherwise does nothing. */

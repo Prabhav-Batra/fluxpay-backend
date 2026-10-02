@@ -92,4 +92,11 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.error.code").value("INTERNAL_ERROR"))
                 .andExpect(jsonPath("$.error.message").value("An unexpected error occurred"));
     }
+
+    @Test
+    void should_return_415_when_content_type_is_not_json() throws Exception {
+        mockMvc.perform(post("/things").contentType(MediaType.TEXT_PLAIN).content("hello"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath("$.error.code").value("UNSUPPORTED_MEDIA_TYPE"));
+    }
 }

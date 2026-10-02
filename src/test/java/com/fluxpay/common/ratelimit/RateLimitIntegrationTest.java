@@ -34,4 +34,25 @@ class RateLimitIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.error.code").value("RATE_LIMITED"))
                 .andExpect(header().exists("Retry-After"));
     }
+
+    @Test
+    void should_share_one_bucket_when_client_spoofs_x_forwarded_for() throws Exception {
+        for (int i = 0; i < 2; i++) {
+            String spoofed = "203.0.113." + i;
+            mockMvc.perform(jsonPost("/api/v1/auth/login", BODY)
+                    .header("X-Forwarded-For", spoofed)
+                    .with(request -> {
+                        request.setRemoteAddr("198.51.100.7");
+                        return request;
+                    }));
+        }
+
+        mockMvc.perform(jsonPost("/api/v1/auth/login", BODY)
+                        .header("X-Forwarded-For", "203.0.113.99")
+                        .with(request -> {
+                            request.setRemoteAddr("198.51.100.7");
+                            return request;
+                        }))
+                .andExpect(status().isTooManyRequests());
+    }
 }

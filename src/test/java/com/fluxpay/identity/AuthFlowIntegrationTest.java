@@ -40,7 +40,7 @@ class AuthFlowIntegrationTest extends AbstractIntegrationTest {
                 merchantId,
                 now,
                 now);
-        userService.createMerchantOwner("owner@jextter.com", "correct-horse", merchantId);
+        userService.createMerchantOwner("owner@jextter.com", userService.hashPassword("correct-horse"), merchantId);
     }
 
     private Cookie login() throws Exception {

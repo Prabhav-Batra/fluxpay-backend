@@ -108,4 +108,13 @@ class SignupIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.slug").value("merchant"))
                 .andExpect(jsonPath("$.business_name").value("जेक्सटर"));
     }
+
+    @Test
+    void should_return_400_when_body_contains_nul_character() throws Exception {
+        mockMvc.perform(jsonPost("/api/v1/auth/signup", BODY.replace("Jextter", "Jex\\u0000tter")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("MALFORMED_REQUEST"));
+        mockMvc.perform(jsonPost("/api/v1/auth/login", "{\"email\":\"a\\u0000@b.com\",\"password\":\"correct-horse\"}"))
+                .andExpect(status().isBadRequest());
+    }
 }

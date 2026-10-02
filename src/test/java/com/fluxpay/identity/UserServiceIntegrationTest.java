@@ -39,8 +39,8 @@ class UserServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void should_normalize_email_when_creating_owner_and_authenticating() {
-        DashboardPrincipal created =
-                userService.createMerchantOwner(" Owner@Jextter.com ", "correct-horse", merchantId);
+        DashboardPrincipal created = userService.createMerchantOwner(
+                " Owner@Jextter.com ", userService.hashPassword("correct-horse"), merchantId);
 
         DashboardPrincipal loggedIn = userService.authenticate("owner@jextter.COM", "correct-horse");
 
@@ -52,9 +52,10 @@ class UserServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void should_throw_email_taken_when_email_differs_only_by_case() {
-        userService.createMerchantOwner("owner@jextter.com", "correct-horse", merchantId);
+        userService.createMerchantOwner("owner@jextter.com", userService.hashPassword("correct-horse"), merchantId);
 
-        assertThatThrownBy(() -> userService.createMerchantOwner("OWNER@jextter.com", "correct-horse", merchantId))
+        assertThatThrownBy(() -> userService.createMerchantOwner(
+                        "OWNER@jextter.com", userService.hashPassword("correct-horse"), merchantId))
                 .isInstanceOf(FluxpayException.class)
                 .extracting(e -> ((FluxpayException) e).code())
                 .isEqualTo("EMAIL_TAKEN");
@@ -62,7 +63,7 @@ class UserServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void should_throw_email_taken_when_reserving_registered_email() {
-        userService.createMerchantOwner("owner@jextter.com", "correct-horse", merchantId);
+        userService.createMerchantOwner("owner@jextter.com", userService.hashPassword("correct-horse"), merchantId);
 
         assertThatThrownBy(() -> userService.reserveEmail(" Owner@Jextter.com"))
                 .extracting(e -> ((FluxpayException) e).code())
@@ -71,7 +72,7 @@ class UserServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void should_throw_invalid_credentials_when_password_is_wrong_or_user_unknown() {
-        userService.createMerchantOwner("owner@jextter.com", "correct-horse", merchantId);
+        userService.createMerchantOwner("owner@jextter.com", userService.hashPassword("correct-horse"), merchantId);
 
         assertThatThrownBy(() -> userService.authenticate("owner@jextter.com", "wrong-password"))
                 .extracting(e -> ((FluxpayException) e).code())
