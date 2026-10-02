@@ -53,3 +53,6 @@ management:
 
 fluxpay:
   frontend-base-url: ${FRONTEND_BASE_URL}
+  admin:
+    bootstrap-email: ${FLUXPAY_ADMIN_EMAIL:}
+    bootstrap-password: ${FLUXPAY_ADMIN_PASSWORD:}
