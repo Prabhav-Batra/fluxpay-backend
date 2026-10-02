@@ -12,7 +12,7 @@ spec:
 
   workflow:
     branch_naming:
-      pattern: "^(feat|fix|chore|refactor|docs)/[a-z0-9-]+$"
+      pattern: "main"  # owner decision 2026-10-02: commit directly to main, no feature branches
     commit_conventions:
       type: "conventional-commits"
       require_ticket_id: false

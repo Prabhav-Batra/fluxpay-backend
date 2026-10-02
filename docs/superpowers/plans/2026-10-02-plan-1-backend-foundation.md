@@ -25,7 +25,7 @@
 - Secrets/config only from environment. Required: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, `FRONTEND_BASE_URL`.
 - Tests: `should_<behavior>_when_<condition>` method names, Arrange-Act-Assert. Integration tests extend `AbstractIntegrationTest` (Testcontainers Postgres). **Docker must be running** for integration tests.
 - Before every commit: `./gradlew spotlessApply`. Commits: Conventional Commits, ending with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
-- All work on branch `feat/backend-foundation`.
+- All work is committed directly on `main` (owner's decision, overrides ProjectOS feature-branch rule); push `main` after each task.
 
 ## Review Focus
 
@@ -111,11 +111,10 @@ fluxpay-backend/
 **Interfaces:**
 - Produces: `FluxpayProperties(String frontendBaseUrl)` bean; `Clock` bean (UTC); `AbstractIntegrationTest` with protected `MockMvc mockMvc`, `ObjectMapper objectMapper`, and automatic table truncation after each test.
 
-- [ ] **Step 0: Branch and restore the Gradle wrapper**
+- [ ] **Step 0: Restore the Gradle wrapper**
 
 ```bash
 cd fluxpay-backend
-git checkout -b feat/backend-foundation
 git checkout legacy-v0 -- gradlew gradlew.bat gradle/wrapper/gradle-wrapper.jar gradle/wrapper/gradle-wrapper.properties
 grep distributionUrl gradle/wrapper/gradle-wrapper.properties   # expect gradle-8.14.5-bin.zip
 ```
@@ -5264,13 +5263,12 @@ Health: `GET /health/live`, `GET /health/ready`.
 Run: `./gradlew spotlessCheck build`
 Expected: `BUILD SUCCESSFUL`, all tests green.
 
-- [ ] **Step 5: Commit and push the branch**
+- [ ] **Step 5: Commit and push**
 
 ```bash
 git add -A
 git commit -m "test(architecture): enforce module boundaries and projectos line limits
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
-git push -u origin feat/backend-foundation
+git push origin main
 ```
-Then open a PR `feat/backend-foundation → main` on GitHub (the `gh` CLI is not installed locally). PR body: problem, approach, how to test (`./gradlew build` with Docker running), ending with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
