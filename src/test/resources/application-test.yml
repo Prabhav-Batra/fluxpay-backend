@@ -21,3 +21,5 @@ fluxpay:
       key-id: rzp_test_fake
       key-secret: fake_secret
       webhook-secret: whsec_fake_test
+  jobs:
+    enabled: false

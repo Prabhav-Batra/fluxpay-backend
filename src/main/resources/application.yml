@@ -71,6 +71,16 @@ fluxpay:
         paths: [/api/v1/auth/login, /api/v1/auth/signup]
         capacity: 10
         period: 1m
+      - name: public-write
+        method: POST
+        paths: [/api/v1/public/**]
+        capacity: 30
+        period: 1m
+      - name: public-read
+        method: GET
+        paths: [/api/v1/public/**]
+        capacity: 300
+        period: 1m
   razorpay:
     base-url: https://api.razorpay.com
     connect-timeout: 5s
@@ -85,3 +95,10 @@ fluxpay:
       webhook-secret: ${RAZORPAY_LIVE_WEBHOOK_SECRET:}
   checkout:
     session-ttl: 30m
+  jobs:
+    enabled: ${FLUXPAY_JOBS_ENABLED:true}
+    expiry-interval: 1m
+    reconciliation-interval: 5m
+    reconciliation-min-age: 10m
+    reconciliation-window: 24h
+    idempotency-retention: 24h
