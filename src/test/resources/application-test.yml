@@ -1,0 +1,8 @@
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false
+
+fluxpay:
+  frontend-base-url: http://localhost:3000
