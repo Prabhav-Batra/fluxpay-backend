@@ -16,3 +16,21 @@
   impact: "Medium - limits are per instance once more than one backend instance runs."
   location: "common/web rate limiting"
   status: "open"
+- id: TD-004
+  date: "2026-10-02"
+  description: "Plan 1 review minors: concurrent API-key rolls can leave two active keys; ApiKeyRepository exposes unscoped JpaRepository methods; invalid FluxPay-Mode header ignored for API keys; case-sensitive Bearer scheme; unexpected filter exceptions bypass error envelope."
+  impact: "Low - edge cases in API key handling; no cross-tenant exposure."
+  location: "src/main/java/com/fluxpay/apikeys"
+  status: "open"
+- id: TD-005
+  date: "2026-10-02"
+  description: "Plan 1 review minors: CSRF token not rotated on login; logout without session returns 401; CORS exposes no custom headers and breaks on trailing slash in FRONTEND_BASE_URL; BAD_REQUEST echoes exception text; X-RateLimit-Reset is 0 when allowed; trace_id vs traceId naming needs an ADR; no test for rolled-key authentication."
+  impact: "Low - polish and hardening."
+  location: "src/main/java/com/fluxpay/config, common/error, common/ratelimit"
+  status: "open"
+- id: TD-006
+  date: "2026-10-02"
+  description: "Verify on Render that the proxy connects from a private range so Tomcat RemoteIpValve resolves the real client IP; otherwise set server.tomcat.remoteip.internal-proxies."
+  impact: "Medium - if wrong, all clients share one rate-limit bucket (fails closed, not open)."
+  location: "src/main/resources/application.yml"
+  status: "open"
