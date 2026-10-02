@@ -18,3 +18,10 @@ Stack: Java 21, Spring Boot 3.5, PostgreSQL 17, Flyway, Gradle (Kotlin DSL).
 4. `./gradlew spotlessApply build` before every commit.
 
 Health: `GET /health/live`, `GET /health/ready`.
+
+## Razorpay setup
+
+1. Put test-mode keys in `.env` (`RAZORPAY_TEST_KEY_ID`, `RAZORPAY_TEST_KEY_SECRET`).
+2. Razorpay Dashboard → Test mode → Webhooks → add `https://<backend>/api/v1/gateway-webhooks/razorpay/test` with events `payment.captured` and `refund.processed`; copy its secret to `RAZORPAY_TEST_WEBHOOK_SECRET`.
+3. Enable automatic capture for payments (Account & Settings → Payment capture) so payments reach `captured`.
+4. For live mode repeat with `RAZORPAY_LIVE_*` and the `/razorpay/live` URL.

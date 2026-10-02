@@ -17,3 +17,18 @@ features:
   - name: "Auth rate limiting"
     description: "Configurable per-IP limits with X-RateLimit headers; 429 RATE_LIMITED."
     modules: ["src/main/java/com/fluxpay/common/ratelimit"]
+  - name: "Products and payment links"
+    description: "One-time products (dashboard CRUD, API read) and shareable /l/<slug> payment links with safe redirects."
+    modules: ["src/main/java/com/fluxpay/catalog"]
+  - name: "Checkout sessions and hosted checkout API"
+    description: "Idempotent POST /api/v1/checkout_sessions, price snapshot, 30-minute expiry, public view/pay endpoints, payment-link sessions."
+    modules: ["src/main/java/com/fluxpay/checkout", "src/main/java/com/fluxpay/common/idempotency"]
+  - name: "Razorpay payments"
+    description: "Per-mode Razorpay orders, signed webhook intake, payment records, reconciliation of missed webhooks."
+    modules: ["src/main/java/com/fluxpay/payments", "src/main/java/com/fluxpay/sales/service"]
+  - name: "Sales, refunds and ledger"
+    description: "Exactly-once sale per captured payment, refunds from Razorpay, append-only ledger with platform and gateway fees, balance."
+    modules: ["src/main/java/com/fluxpay/sales", "src/main/java/com/fluxpay/ledger"]
+  - name: "Event outbox"
+    description: "checkout.completed, checkout.expired and sale.refunded written transactionally to events (delivery in Plan 3)."
+    modules: ["src/main/java/com/fluxpay/events"]

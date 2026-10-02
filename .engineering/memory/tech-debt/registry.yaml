@@ -34,3 +34,15 @@
   impact: "Medium - if wrong, all clients share one rate-limit bucket (fails closed, not open)."
   location: "src/main/resources/application.yml"
   status: "open"
+- id: TD-007
+  date: "2026-10-02"
+  description: "Razorpay calls use timeouts but no circuit breaker (ProjectOS backend standard #13)."
+  impact: "Low - a Razorpay outage makes each pay click wait up to the read timeout."
+  location: "src/main/java/com/fluxpay/payments/service/RazorpayGateway.java"
+  status: "open"
+- id: TD-008
+  date: "2026-10-02"
+  description: "Payments flagged AMOUNT_MISMATCH or DUPLICATE are only logged; there is no admin view or automatic refund."
+  impact: "Medium - customer money held without a sale until someone refunds it in Razorpay."
+  location: "src/main/java/com/fluxpay/sales/service/SaleCaptureServiceImpl.java"
+  status: "open"
