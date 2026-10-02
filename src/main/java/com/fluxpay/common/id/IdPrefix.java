@@ -12,7 +12,8 @@ public enum IdPrefix {
     EVENT("evt"),
     WEBHOOK_ENDPOINT("we"),
     PAYOUT("po"),
-    LEDGER_ENTRY("le");
+    LEDGER_ENTRY("le"),
+    WEBHOOK_DELIVERY("wd");
 
     private final String value;
 

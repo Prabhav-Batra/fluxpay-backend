@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum EventType {
     CHECKOUT_COMPLETED("checkout.completed"),
     CHECKOUT_EXPIRED("checkout.expired"),
-    SALE_REFUNDED("sale.refunded");
+    SALE_REFUNDED("sale.refunded"),
+    WEBHOOK_TEST("webhook.test");
 
     private final String value;
 
