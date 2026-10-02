@@ -49,12 +49,6 @@ fluxpay:
   frontend-url: ${FLUXPAY_FRONTEND_URL:${NEXT_PUBLIC_FRONTEND_URL:http://localhost:3000}}
   security:
     allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
-  webhook:
-    # Outgoing webhooks are delivered in-process (webhook_deliveries table + WebhookDispatcher).
-    # Temporary override: send every event to one URL instead of per-merchant endpoints.
-    direct:
-      url: ${FLUXPAY_DIRECT_WEBHOOK_URL:}
-      secret: ${FLUXPAY_DIRECT_WEBHOOK_SECRET:}
   gateways:
     default: ${DEFAULT_GATEWAY:RAZORPAY}
     razorpay:

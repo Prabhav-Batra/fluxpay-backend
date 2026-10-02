@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -48,8 +50,12 @@ public class WebhookService {
         webhookEndpointRepository.save(endpoint);
     }
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     private String generateSecretKey() {
-        return "whsec_" + UUID.randomUUID().toString().replace("-", "");
+        byte[] bytes = new byte[32];
+        SECURE_RANDOM.nextBytes(bytes);
+        return "whsec_" + HexFormat.of().formatHex(bytes);
     }
 
     private WebhookEndpointDto mapToDto(WebhookEndpoint endpoint) {

@@ -13,7 +13,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.client.HttpServerErrorException;
@@ -48,9 +47,11 @@ class WebhookDispatcherTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(dispatcher, "directSecret", "whsec_direct");
+        UUID endpointId = UUID.randomUUID();
+        when(endpoints.findById(endpointId)).thenReturn(Optional.of(
+                WebhookEndpoint.builder().id(endpointId).secretKey("whsec_merchant").active(true).build()));
         delivery = WebhookDelivery.builder()
-                .id(UUID.randomUUID()).eventId(UUID.randomUUID()).merchantId(UUID.randomUUID())
+                .id(UUID.randomUUID()).eventId(UUID.randomUUID()).merchantId(UUID.randomUUID()).endpointId(endpointId)
                 .url("https://merchant.example/hook").eventType("payment.succeeded")
                 .payload("{\"status\":\"SUCCESS\"}").status(WebhookDeliveryStatus.PENDING).attempts(0)
                 .build();
@@ -76,7 +77,7 @@ class WebhookDispatcherTest {
         verify(restTemplate).postForEntity(eq(delivery.getUrl()), request.capture(), eq(String.class));
         var headers = request.getValue().getHeaders();
         // Same signature scheme merchants already verify: base64 HMAC-SHA256 of the raw body
-        assertEquals(WebhookDispatcher.sign(delivery.getPayload(), "whsec_direct"), headers.getFirst("X-Fluxpay-Signature"));
+        assertEquals(WebhookDispatcher.sign(delivery.getPayload(), "whsec_merchant"), headers.getFirst("X-Fluxpay-Signature"));
         assertEquals("payment.succeeded", headers.getFirst("X-Fluxpay-Event"));
         assertEquals(delivery.getEventId().toString(), headers.getFirst("X-Fluxpay-Event-Id"));
         assertEquals("1", headers.getFirst("X-Fluxpay-Delivery-Attempt"));

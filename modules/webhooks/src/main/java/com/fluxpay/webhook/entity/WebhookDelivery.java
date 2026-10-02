@@ -28,7 +28,7 @@ public class WebhookDelivery {
     @Column(nullable = false, name = "merchant_id")
     private UUID merchantId;
 
-    // Null when sent to the FLUXPAY_DIRECT_WEBHOOK_URL override
+    // The merchant's endpoint; its secret is looked up at send time so a deleted endpoint stops receiving
     @Column(name = "endpoint_id")
     private UUID endpointId;
 

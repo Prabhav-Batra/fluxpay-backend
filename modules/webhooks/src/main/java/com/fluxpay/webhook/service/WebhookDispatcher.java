@@ -7,7 +7,6 @@ import com.fluxpay.webhook.repository.WebhookDeliveryRepository;
 import com.fluxpay.webhook.repository.WebhookEndpointRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
@@ -55,9 +54,6 @@ public class WebhookDispatcher {
     private final WebhookEndpointRepository endpointRepository;
     private final TaskScheduler taskScheduler;
     private final RestTemplate restTemplate;
-
-    @Value("${fluxpay.webhook.direct.secret:}")
-    private String directSecret;
 
     /** Attempt these deliveries once the current transaction commits (immediately if there is none). */
     public void dispatchAfterCommit(List<UUID> deliveryIds) {
@@ -108,7 +104,7 @@ public class WebhookDispatcher {
 
         String secret = resolveSecret(delivery);
         if (secret == null) {
-            giveUp(delivery, null, "No signing secret: endpoint deactivated or FLUXPAY_DIRECT_WEBHOOK_SECRET unset");
+            giveUp(delivery, null, "Endpoint deleted or deactivated by the merchant");
             deliveryRepository.save(delivery);
             return;
         }
@@ -167,7 +163,7 @@ public class WebhookDispatcher {
 
     private String resolveSecret(WebhookDelivery delivery) {
         if (delivery.getEndpointId() == null) {
-            return directSecret.isBlank() ? null : directSecret;
+            return null;
         }
         return endpointRepository.findById(delivery.getEndpointId())
                 .filter(WebhookEndpoint::isActive)

@@ -9,7 +9,6 @@ import com.fluxpay.webhook.repository.WebhookDeliveryRepository;
 import com.fluxpay.webhook.repository.WebhookEndpointRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,14 +33,6 @@ public class WebhookEventPublisher {
     private final WebhookDeliveryRepository webhookDeliveryRepository;
     private final WebhookDispatcher webhookDispatcher;
 
-    // TEMPORARY override: when set, every event goes to this single endpoint (the original
-    // Jextter setup). Leave empty to deliver to each merchant's own registered endpoints.
-    @Value("${fluxpay.webhook.direct.url:}")
-    private String directUrl;
-
-    @Value("${fluxpay.webhook.direct.secret:}")
-    private String directSecret;
-
     @Transactional
     public void publishEvent(UUID merchantId, String eventType, Object payload) {
         String payloadJson;
@@ -55,12 +46,9 @@ public class WebhookEventPublisher {
         UUID eventId = UUID.randomUUID();
         List<WebhookDelivery> deliveries = new ArrayList<>();
 
-        if (!directUrl.isBlank() && !directSecret.isBlank()) {
-            deliveries.add(newDelivery(eventId, merchantId, null, directUrl, eventType, payloadJson));
-        } else {
-            for (WebhookEndpoint endpoint : webhookEndpointRepository.findByMerchantIdAndActiveTrue(merchantId)) {
-                deliveries.add(newDelivery(eventId, merchantId, endpoint.getId(), endpoint.getUrl(), eventType, payloadJson));
-            }
+        // Each merchant registers its own endpoints in the dashboard; each endpoint has its own secret
+        for (WebhookEndpoint endpoint : webhookEndpointRepository.findByMerchantIdAndActiveTrue(merchantId)) {
+            deliveries.add(newDelivery(eventId, merchantId, endpoint.getId(), endpoint.getUrl(), eventType, payloadJson));
         }
 
         if (deliveries.isEmpty()) {
