@@ -1,4 +1,19 @@
 # Completed Features Registry
 # High-level index of built capabilities. Updated as each feature PR merges.
 
-features: []
+features:
+  - name: "Backend foundation"
+    description: "Spring Boot skeleton, /health/live and /health/ready, Flyway, error envelope, correlation ids, UUIDv7 prefixed public ids."
+    modules: ["src/main/java/com/fluxpay/common"]
+  - name: "Merchant signup and dashboard sessions"
+    description: "Self-serve signup creates a merchant and owner; session login/logout/me with CSRF; platform admin bootstrap from env."
+    modules: ["src/main/java/com/fluxpay/identity", "src/main/java/com/fluxpay/merchants"]
+  - name: "Merchant profile"
+    description: "Business name, logo URL and brand colour editable from the dashboard."
+    modules: ["src/main/java/com/fluxpay/merchants"]
+  - name: "API keys"
+    description: "Hashed sk_test_/sk_live_ keys with create, list, roll, revoke; Bearer authentication; GET /api/v1/account."
+    modules: ["src/main/java/com/fluxpay/apikeys"]
+  - name: "Auth rate limiting"
+    description: "Configurable per-IP limits with X-RateLimit headers; 429 RATE_LIMITED."
+    modules: ["src/main/java/com/fluxpay/common/ratelimit"]
