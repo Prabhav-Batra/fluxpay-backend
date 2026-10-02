@@ -16,4 +16,9 @@ public interface LedgerService {
     Balance balance(TenantContext tenant);
 
     CursorPage<LedgerEntryView> entries(TenantContext tenant, PageQuery query);
+
+    /** Records a payout and its ledger entry. INSUFFICIENT_BALANCE (409) when it exceeds the available balance. */
+    PayoutView recordPayout(TenantContext tenant, NewPayout payout);
+
+    CursorPage<PayoutView> payouts(TenantContext tenant, PageQuery query);
 }

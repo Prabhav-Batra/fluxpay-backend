@@ -65,6 +65,16 @@ public class Merchant {
         this.updatedAt = now;
     }
 
+    public void changePlatformFee(int platformFeeBps, Instant now) {
+        this.platformFeeBps = platformFeeBps;
+        this.updatedAt = now;
+    }
+
+    public void changeStatus(MerchantStatus status, Instant now) {
+        this.status = status;
+        this.updatedAt = now;
+    }
+
     public UUID getId() {
         return id;
     }

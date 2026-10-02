@@ -25,3 +25,12 @@ Health: `GET /health/live`, `GET /health/ready`.
 2. Razorpay Dashboard → Test mode → Webhooks → add `https://<backend>/api/v1/gateway-webhooks/razorpay/test` with events `payment.captured` and `refund.processed`; copy its secret to `RAZORPAY_TEST_WEBHOOK_SECRET`.
 3. Enable automatic capture for payments (Account & Settings → Payment capture) so payments reach `captured`.
 4. For live mode repeat with `RAZORPAY_LIVE_*` and the `/razorpay/live` URL.
+
+## Receiving FluxPay webhooks (for merchants)
+
+Register an endpoint in the dashboard (Developers → Webhooks). Each POST carries:
+
+- `FluxPay-Event-Id`, `FluxPay-Event-Type` headers and a JSON body `{id, type, created, mode, data}`.
+- `FluxPay-Signature: t=<unix seconds>,v1=<hex>` where `v1 = HMAC-SHA256(endpoint_secret, t + "." + raw_body)`.
+
+Verify by recomputing `v1` over the raw body, comparing in constant time, and rejecting `t` older than 5 minutes. Respond 2xx quickly; non-2xx is retried after 1m, 5m, 30m, 2h, 6h, 12h, 24h. Delivery is at-least-once: de-duplicate on `id`. Event types: `checkout.completed`, `checkout.expired`, `sale.refunded`, `webhook.test`.

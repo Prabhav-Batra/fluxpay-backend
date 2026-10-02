@@ -1,12 +1,17 @@
 package com.fluxpay.merchants.service;
 
 import com.fluxpay.common.error.FluxpayException;
+import com.fluxpay.common.id.IdPrefix;
+import com.fluxpay.common.id.PublicId;
+import com.fluxpay.common.pagination.CursorPage;
+import com.fluxpay.common.pagination.PageQuery;
 import com.fluxpay.merchants.domain.Merchant;
 import com.fluxpay.merchants.domain.MerchantStatus;
 import com.fluxpay.merchants.persistence.MerchantRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +56,30 @@ public class MerchantServiceImpl implements MerchantService {
                 .findById(merchantId)
                 .map(merchant -> merchant.getStatus() == MerchantStatus.ACTIVE)
                 .orElse(false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CursorPage<MerchantView> list(PageQuery query) {
+        return CursorPage.from(
+                merchants.page(query.before(), Limit.of(query.fetchSize())),
+                query,
+                MerchantView::from,
+                view -> PublicId.of(IdPrefix.MERCHANT, view.id()));
+    }
+
+    @Override
+    @Transactional
+    public MerchantView updateByAdmin(UUID merchantId, Integer platformFeeBps, MerchantStatus status) {
+        Merchant merchant = find(merchantId);
+        Instant now = Instant.now(clock);
+        if (platformFeeBps != null) {
+            merchant.changePlatformFee(platformFeeBps, now);
+        }
+        if (status != null) {
+            merchant.changeStatus(status, now);
+        }
+        return MerchantView.from(merchant);
     }
 
     private Merchant find(UUID merchantId) {

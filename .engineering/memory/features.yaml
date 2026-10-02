@@ -32,3 +32,12 @@ features:
   - name: "Event outbox"
     description: "checkout.completed, checkout.expired and sale.refunded written transactionally to events (delivery in Plan 3)."
     modules: ["src/main/java/com/fluxpay/events"]
+  - name: "Merchant webhooks"
+    description: "Endpoint management (SSRF-guarded URLs, secrets, roll, test ping), event log with deliveries and resend, signed dispatcher with leased claims and 8-attempt backoff."
+    modules: ["src/main/java/com/fluxpay/events"]
+  - name: "Analytics"
+    description: "Summary (gross, refunds, fees, net, count), IST daily timeseries with zero-filled days, top products."
+    modules: ["src/main/java/com/fluxpay/analytics"]
+  - name: "Platform admin and payouts"
+    description: "Merchant list/detail with test and live balances, fee and suspension changes, manual payouts guarded by available balance."
+    modules: ["src/main/java/com/fluxpay/admin", "src/main/java/com/fluxpay/ledger"]
