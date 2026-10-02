@@ -87,4 +87,18 @@ public final class TestMerchants {
                 .andReturn();
         return JsonPath.read(result.getResponse().getContentAsString(), "$.order_id");
     }
+
+    public static String completeSale(
+            MockMvc mockMvc, String apiKey, String productId, long amount, String customerRef, String gatewayPaymentId)
+            throws Exception {
+        String sessionId = createCheckoutSession(mockMvc, apiKey, productId, customerRef);
+        String orderId = pay(mockMvc, sessionId);
+        String body = TestWebhooks.paymentCaptured(gatewayPaymentId, orderId, amount, 116);
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/gateway-webhooks/razorpay/test")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Razorpay-Signature", TestWebhooks.sign(body))
+                        .content(body))
+                .andExpect(status().isOk());
+        return sessionId;
+    }
 }
