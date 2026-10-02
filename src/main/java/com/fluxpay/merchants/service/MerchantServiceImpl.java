@@ -1,0 +1,68 @@
+package com.fluxpay.merchants.service;
+
+import com.fluxpay.common.error.FluxpayException;
+import com.fluxpay.merchants.domain.Merchant;
+import com.fluxpay.merchants.domain.MerchantStatus;
+import com.fluxpay.merchants.persistence.MerchantRepository;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class MerchantServiceImpl implements MerchantService {
+
+    private final MerchantRepository merchants;
+    private final Clock clock;
+
+    public MerchantServiceImpl(MerchantRepository merchants, Clock clock) {
+        this.merchants = merchants;
+        this.clock = clock;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MerchantView get(UUID merchantId) {
+        return MerchantView.from(find(merchantId));
+    }
+
+    @Override
+    @Transactional
+    public MerchantView updateProfile(UUID merchantId, ProfileUpdate update) {
+        Merchant merchant = find(merchantId);
+        Instant now = Instant.now(clock);
+        if (update.businessName() != null) {
+            merchant.rename(update.businessName().trim(), now);
+        }
+        if (update.logoUrl() != null || update.brandColor() != null) {
+            merchant.changeBranding(
+                    resolve(update.logoUrl(), merchant.getLogoUrl()),
+                    resolve(update.brandColor(), merchant.getBrandColor()),
+                    now);
+        }
+        return MerchantView.from(merchant);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isActive(UUID merchantId) {
+        return merchants
+                .findById(merchantId)
+                .map(merchant -> merchant.getStatus() == MerchantStatus.ACTIVE)
+                .orElse(false);
+    }
+
+    private Merchant find(UUID merchantId) {
+        return merchants
+                .findById(merchantId)
+                .orElseThrow(() -> FluxpayException.notFound("MERCHANT_NOT_FOUND", "Merchant not found"));
+    }
+
+    private static String resolve(String requested, String current) {
+        if (requested == null) {
+            return current;
+        }
+        return requested.isEmpty() ? null : requested;
+    }
+}

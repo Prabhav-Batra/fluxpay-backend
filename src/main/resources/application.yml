@@ -56,3 +56,5 @@ fluxpay:
   admin:
     bootstrap-email: ${FLUXPAY_ADMIN_EMAIL:}
     bootstrap-password: ${FLUXPAY_ADMIN_PASSWORD:}
+  merchants:
+    default-platform-fee-bps: ${DEFAULT_PLATFORM_FEE_BPS:500}
