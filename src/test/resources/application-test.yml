@@ -6,3 +6,10 @@ server:
 
 fluxpay:
   frontend-base-url: http://localhost:3000
+  rate-limit:
+    rules:
+      - name: auth
+        method: POST
+        paths: [/api/v1/auth/login, /api/v1/auth/signup]
+        capacity: 10000
+        period: 1m

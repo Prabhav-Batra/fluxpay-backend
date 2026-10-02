@@ -58,3 +58,10 @@ fluxpay:
     bootstrap-password: ${FLUXPAY_ADMIN_PASSWORD:}
   merchants:
     default-platform-fee-bps: ${DEFAULT_PLATFORM_FEE_BPS:500}
+  rate-limit:
+    rules:
+      - name: auth
+        method: POST
+        paths: [/api/v1/auth/login, /api/v1/auth/signup]
+        capacity: 10
+        period: 1m
