@@ -152,7 +152,7 @@ Indexes: `(merchant_id, mode, created_at)` on `sales`, `ledger_entries`, `events
 - **Redirect URLs:** must be `https://` in live mode; `http://localhost` allowed in test mode.
 - **Rate limits:** in-process token buckets (Bucket4j) on login, signup, public checkout and link routes; headers `X-RateLimit-*` per ProjectOS API standard. (Moves to Redis when there is more than one instance — tech debt.)
 - **CORS:** only the configured frontend origin.
-- **Secrets:** env only; app fails to start if `DATABASE_URL`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `SESSION_SECRET`, `FRONTEND_BASE_URL` are missing.
+- **Secrets:** env only; app fails to start if `SPRING_DATASOURCE_URL` (+ `_USERNAME`, `_PASSWORD`), `FRONTEND_BASE_URL`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` are missing.
 - **Schema:** Flyway only; `ddl-auto: validate`.
 - Logging: structured JSON with correlation ID; never log secrets, full card data, or API keys.
 
