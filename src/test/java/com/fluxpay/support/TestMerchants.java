@@ -50,4 +50,17 @@ public final class TestMerchants {
                 .andReturn();
         return JsonPath.read(result.getResponse().getContentAsString(), "$.secret");
     }
+
+    public static String createProduct(MockMvc mockMvc, SignedIn merchant, Mode mode, String name, long amount)
+            throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/dashboard/products")
+                        .with(csrf())
+                        .cookie(merchant.session())
+                        .header("FluxPay-Mode", mode.value())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"%s\",\"amount\":%d}".formatted(name, amount)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        return JsonPath.read(result.getResponse().getContentAsString(), "$.id");
+    }
 }
