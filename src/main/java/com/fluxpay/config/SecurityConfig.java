@@ -1,6 +1,9 @@
 package com.fluxpay.config;
 
+import com.fluxpay.apikeys.api.ApiKeyAuthenticationFilter;
+import com.fluxpay.apikeys.service.ApiKeyService;
 import com.fluxpay.common.config.FluxpayProperties;
+import com.fluxpay.common.error.ErrorResponseWriter;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -33,7 +37,9 @@ public class SecurityConfig {
             HttpSecurity http,
             SecurityContextRepository securityContextRepository,
             RestAuthenticationEntryPoint entryPoint,
-            RestAccessDeniedHandler accessDeniedHandler)
+            RestAccessDeniedHandler accessDeniedHandler,
+            ApiKeyService apiKeyService,
+            ErrorResponseWriter errorWriter)
             throws Exception {
         RequestMatcher notSessionRoute = request -> SESSION_PREFIXES.stream()
                 .noneMatch(prefix -> request.getRequestURI().startsWith(prefix));
@@ -66,6 +72,8 @@ public class SecurityConfig {
                         .hasRole("API_KEY")
                         .anyRequest()
                         .denyAll());
+        http.addFilterAfter(
+                new ApiKeyAuthenticationFilter(apiKeyService, errorWriter), SecurityContextHolderFilter.class);
         return http.build();
     }
 
