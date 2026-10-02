@@ -71,3 +71,15 @@ fluxpay:
         paths: [/api/v1/auth/login, /api/v1/auth/signup]
         capacity: 10
         period: 1m
+  razorpay:
+    base-url: https://api.razorpay.com
+    connect-timeout: 5s
+    read-timeout: 10s
+    test:
+      key-id: ${RAZORPAY_TEST_KEY_ID}
+      key-secret: ${RAZORPAY_TEST_KEY_SECRET}
+      webhook-secret: ${RAZORPAY_TEST_WEBHOOK_SECRET}
+    live:
+      key-id: ${RAZORPAY_LIVE_KEY_ID:}
+      key-secret: ${RAZORPAY_LIVE_KEY_SECRET:}
+      webhook-secret: ${RAZORPAY_LIVE_WEBHOOK_SECRET:}

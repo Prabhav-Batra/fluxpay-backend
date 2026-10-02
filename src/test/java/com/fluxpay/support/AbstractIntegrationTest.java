@@ -22,10 +22,14 @@ public abstract class AbstractIntegrationTest {
     protected ObjectMapper objectMapper;
 
     @Autowired
+    protected FakePaymentGateway paymentGateway;
+
+    @Autowired
     private DatabaseCleaner databaseCleaner;
 
     @AfterEach
     void cleanDatabase() {
         databaseCleaner.truncateAll();
+        paymentGateway.reset();
     }
 }

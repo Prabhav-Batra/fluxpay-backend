@@ -13,3 +13,11 @@ fluxpay:
         paths: [/api/v1/auth/login, /api/v1/auth/signup]
         capacity: 10000
         period: 1m
+  razorpay:
+    base-url: https://razorpay.invalid
+    connect-timeout: 1s
+    read-timeout: 1s
+    test:
+      key-id: rzp_test_fake
+      key-secret: fake_secret
+      webhook-secret: whsec_fake_test
