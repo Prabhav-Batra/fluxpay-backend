@@ -1,7 +1,9 @@
 package com.fluxpay.common.id;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.fluxpay.common.error.FluxpayException;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -29,5 +31,14 @@ class PublicIdTest {
         assertThat(PublicId.parse(IdPrefix.PRODUCT, null)).isEmpty();
         assertThat(PublicId.parse(IdPrefix.PRODUCT, "prod_")).isEmpty();
         assertThat(PublicId.parse(IdPrefix.PRODUCT, "prod_not-an-id")).isEmpty();
+    }
+
+    @Test
+    void should_throw_not_found_with_given_code_when_parse_or_not_found_fails() {
+        assertThatThrownBy(() ->
+                        PublicId.parseOrNotFound(IdPrefix.PRODUCT, "bad", "PRODUCT_NOT_FOUND", "Product not found"))
+                .isInstanceOf(FluxpayException.class)
+                .extracting(e -> ((FluxpayException) e).code())
+                .isEqualTo("PRODUCT_NOT_FOUND");
     }
 }

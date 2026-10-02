@@ -1,5 +1,6 @@
 package com.fluxpay.common.id;
 
+import com.fluxpay.common.error.FluxpayException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,5 +19,9 @@ public final class PublicId {
             return Optional.empty();
         }
         return Base62.decodeUuid(publicId.substring(expected.length()));
+    }
+
+    public static UUID parseOrNotFound(IdPrefix prefix, String publicId, String code, String message) {
+        return parse(prefix, publicId).orElseThrow(() -> FluxpayException.notFound(code, message));
     }
 }
