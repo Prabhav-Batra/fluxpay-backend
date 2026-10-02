@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/signup")
                         .permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/gateway-webhooks/**")
+                        .permitAll()
                         .requestMatchers("/api/v1/public/**")
                         .permitAll()
                         .requestMatchers("/api/v1/auth/**")
