@@ -1,0 +1,21 @@
+# ProjectOS Mandatory Constraints
+
+# 1. Architecture Constraints
+architecture:
+  enforce_layering: true
+  prevent_god_files: true
+  require_manifest: true
+  max_controller_lines: 300
+  max_service_lines: 500
+
+# 2. Technology Constraints
+technology:
+  allowed_licenses: ["MIT", "Apache-2.0"]
+  disallowed_licenses: ["GPL"]
+  enforce_semantic_versioning: true
+
+# 3. Security Constraints
+security:
+  expose_port_22: false
+  allow_root_containers: false
+  require_auth_review: true

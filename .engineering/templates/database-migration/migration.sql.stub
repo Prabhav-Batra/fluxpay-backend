@@ -1,0 +1,32 @@
+-- V{{ VERSION }}__{{ DESCRIPTION }}.sql
+-- Author: {{ AUTHOR }}
+-- Date: {{ DATE }}
+-- Context: {{ TICKET_URL }}
+
+-- ======================================================================
+-- UP: Forward Migration
+-- ======================================================================
+BEGIN;
+
+-- 1. Create table(s) or columns
+-- CREATE TABLE IF NOT EXISTS {{ TABLE_NAME }} (
+--    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+-- );
+
+-- 2. Create index(es)
+-- CREATE INDEX idx_{{ TABLE_NAME }}_{{ COLUMN_NAME }} ON {{ TABLE_NAME }} ({{ COLUMN_NAME }});
+
+-- 3. Backfill data (if expand-contract pattern)
+
+COMMIT;
+
+-- ======================================================================
+-- DOWN: Rollback Migration
+-- (Must reverse everything done in UP perfectly)
+-- ======================================================================
+-- BEGIN;
+-- DROP INDEX IF EXISTS idx_{{ TABLE_NAME }}_{{ COLUMN_NAME }};
+-- DROP TABLE IF EXISTS {{ TABLE_NAME }};
+-- COMMIT;

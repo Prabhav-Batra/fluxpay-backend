@@ -1,0 +1,12 @@
+api_version: v1
+kind: TechPack
+metadata:
+  name: "maven"
+  version: "3.8+"
+  category: "tool"
+  
+spec:
+  dependencies: []
+  
+  assets:
+    workflows: "workflows/" # Placeholder: would contain commands for building, testing, etc.

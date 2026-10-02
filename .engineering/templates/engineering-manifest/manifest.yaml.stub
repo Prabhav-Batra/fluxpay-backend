@@ -1,0 +1,40 @@
+schema_version: "1.0"
+metadata:
+  feature_name: "{{ FEATURE_NAME }}"
+  epic: "{{ EPIC_ID }}"
+  author: "{{ AUTHOR }}"
+  date: "{{ DATE }}"
+
+business_intent:
+  objective: "What business goal does this achieve?"
+  success_metrics:
+    - "Metric 1 (e.g., P99 latency < 50ms)"
+    - "Metric 2 (e.g., Error rate < 0.1%)"
+
+architecture:
+  layer: "[domain | application | infrastructure | presentation]"
+  bounded_context: "{{ BOUNDED_CONTEXT }}"
+  patterns_used:
+    - "[Pattern 1, e.g., Repository, Factory, Strategy]"
+  dependencies_added:
+    - package: "name"
+      reason: "justification"
+
+changes:
+  new_files:
+    - path: "src/domain/..."
+      responsibility: "..."
+  modified_files:
+    - path: "src/application/..."
+      responsibility_shift: "..."
+
+verification:
+  unit_tests_planned:
+    - "should_do_X_when_Y"
+  integration_tests_planned:
+    - "API returns Z when hitting database"
+
+security_review:
+  data_classification: "[Public | Internal | Confidential | Restricted]"
+  new_secrets_required: false
+  auth_required: true

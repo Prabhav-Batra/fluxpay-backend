@@ -1,0 +1,22 @@
+# ProjectOS Configuration: preferences.yaml
+# SCHEMA VERSION: 1.0.0
+
+api_version: v1
+kind: PreferencesConfig
+spec:
+  formatting:
+    indent_style: "space"
+    indent_size: 4            # Java convention
+    max_line_length: 120
+    formatter: "spotless (palantir-java-format)"
+
+  workflow:
+    branch_naming:
+      pattern: "^(feat|fix|chore|refactor|docs)/[a-z0-9-]+$"
+    commit_conventions:
+      type: "conventional-commits"
+      require_ticket_id: false
+
+  documentation:
+    require_docstrings: true  # Javadoc on public service interfaces and non-obvious domain logic
+    format: "javadoc"

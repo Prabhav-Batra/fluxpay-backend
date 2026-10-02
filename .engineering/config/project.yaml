@@ -1,0 +1,14 @@
+# ProjectOS Configuration
+project:
+  name: "fluxpay-backend"
+  description: "FluxPay API: multi-tenant checkout, sales ledger, merchant webhooks and analytics for one-time digital products."
+  version: "1.0.0"
+  profile: "application"
+
+runtime:
+  # Matches names in .engineering/plugins/*.md
+  active_plugins: ["Spring_Boot", "PostgreSQL", "Docker"]
+  active_workflows: ["new-feature", "api-change", "database-change", "bug-fix", "security-patch"]
+
+standards:
+  strict_mode: true

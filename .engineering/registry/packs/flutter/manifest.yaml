@@ -1,0 +1,8 @@
+name: flutter
+version: 1.0.0
+description: "Core standards and best practices for Flutter and Dart development."
+dependencies: []
+
+injects:
+  - best-practices.md
+  - pitfalls.md

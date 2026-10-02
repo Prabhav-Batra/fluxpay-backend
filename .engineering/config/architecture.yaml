@@ -1,0 +1,48 @@
+# ProjectOS Configuration: architecture.yaml
+# SCHEMA VERSION: 1.0.0
+# Source of truth for module boundaries: docs/superpowers/specs/2026-10-02-fluxpay-v1-design.md §3.1
+# Enforced by the ArchUnit test ModuleBoundariesTest.
+
+api_version: v1
+kind: ArchitectureConfig
+spec:
+  pattern: "modular-monolith"   # package-by-feature, each module layered api -> service -> domain -> persistence
+
+  deployment:
+    target: "render-docker"
+    cloud_providers:
+      - name: "render"
+        primary_region: "singapore"
+    database: "neon-postgres"
+
+  communication:
+    sync:
+      protocol: "rest"          # /api/v1, JSON
+    async:
+      protocol: "postgres-outbox" # events table + scheduled dispatcher; no broker in v1
+
+  boundaries:
+    - module: "common"
+      dependencies: []
+    - module: "identity"
+      dependencies: ["common"]
+    - module: "merchants"
+      dependencies: ["common", "identity"]
+    - module: "apikeys"
+      dependencies: ["common", "merchants"]
+    - module: "catalog"
+      dependencies: ["common", "merchants"]
+    - module: "payments"
+      dependencies: ["common"]
+    - module: "checkout"
+      dependencies: ["common", "merchants", "catalog", "payments"]
+    - module: "ledger"
+      dependencies: ["common", "merchants"]
+    - module: "events"
+      dependencies: ["common", "merchants"]
+    - module: "sales"
+      dependencies: ["common", "checkout", "payments", "ledger", "events"]
+    - module: "analytics"
+      dependencies: ["common", "sales", "ledger"]
+    - module: "admin"
+      dependencies: ["common", "merchants", "ledger"]

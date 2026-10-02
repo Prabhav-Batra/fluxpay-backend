@@ -1,0 +1,22 @@
+api_version: v1
+kind: TechPack
+metadata:
+  name: "spring-boot"
+  version: "3.x"
+  category: "framework"
+  
+spec:
+  dependencies:
+    - "java"
+    - "maven"
+    - "spring-data-jpa"
+    - "spring-security"
+    
+  compatibility:
+    requires:
+      - tech: "java"
+        version: ">= 17"
+        
+  assets:
+    best_practices: "best-practices.md"
+    pitfalls: "pitfalls.md"

@@ -1,0 +1,134 @@
+# ProjectOS Configuration: stack.yaml
+#
+# SCHEMA VERSION: 1.0.0
+# PROJECT: FluxPay
+#
+# PURPOSE:
+# Declares the complete technology stack for the FluxPay platform.
+# AI assistants MUST only use the technologies listed below.
+# Any technology not explicitly listed is considered prohibited unless
+# approved and added to this configuration.
+
+api_version: v1
+kind: StackConfig
+
+spec:
+  languages:
+    - name: java
+      version: "21"
+      purpose: backend
+
+    - name: kotlin
+      version: "2.1"
+      purpose: gradle-build-scripts
+
+    - name: typescript
+      version: "5.x"
+      purpose: frontend
+
+    - name: sql
+      version: "ANSI SQL"
+      purpose: database-migrations
+
+    - name: yaml
+      version: "1.2"
+      purpose: configuration
+
+    - name: markdown
+      version: "1.0"
+      purpose: documentation
+
+    - name: bash
+      version: "5.x"
+      purpose: automation-scripts
+
+  frameworks:
+    # Backend
+    - name: spring-boot
+      version: "3.5.x"
+      layer: api
+
+    - name: spring-security
+      version: "6.x"
+      layer: security
+
+    - name: spring-data-jpa
+      version: "3.5.x"
+      layer: persistence
+
+    - name: spring-validation
+      version: "3.5.x"
+      layer: validation
+
+    - name: flyway
+      version: "11.x"
+      layer: database
+
+    - name: springdoc-openapi
+      version: "2.x"
+      layer: documentation
+
+    # Frontend
+    - name: nextjs
+      version: "15.x"
+      layer: web
+
+    - name: react
+      version: "19.x"
+      layer: web
+
+    - name: tailwindcss
+      version: "4.x"
+      layer: styling
+
+    - name: shadcn-ui
+      version: "latest"
+      layer: ui
+
+    - name: react-hook-form
+      version: "7.x"
+      layer: forms
+
+    - name: zod
+      version: "4.x"
+      layer: validation
+
+    - name: tanstack-query
+      version: "5.x"
+      layer: data-fetching
+
+    - name: tanstack-table
+      version: "8.x"
+      layer: tables
+
+    - name: framer-motion
+      version: "12.x"
+      layer: animation
+
+    - name: recharts
+      version: "3.x"
+      layer: charts
+
+  databases:
+    - name: postgresql
+      version: "17"
+      driver: spring-data-jpa
+
+    # Redis deferred until more than one backend instance runs (ADR-004).
+
+  tooling:
+    package_manager: gradle
+    frontend_package_manager: pnpm
+    ci_cd: github-actions
+
+  ai_assistants:
+    - name: "claude-code"
+      role: architecture-and-code-generation
+      allowed_actions:
+        - read
+        - write
+        - refactor
+        - review
+        - generate-tests
+        - generate-documentation
+        

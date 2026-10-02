@@ -1,0 +1,8 @@
+name: react
+version: 1.0.0
+description: "Core standards for React and Next.js development."
+dependencies: []
+
+injects:
+  - best-practices.md
+  - pitfalls.md

@@ -1,0 +1,18 @@
+- id: TD-001
+  date: "2026-10-02"
+  description: "Payouts are recorded manually by the platform admin."
+  impact: "Medium - manual work and settlement risk; collecting for third parties at scale needs Razorpay Route or a PA licence."
+  location: "ledger, admin modules"
+  status: "open"
+- id: TD-002
+  date: "2026-10-02"
+  description: "Refunds can only be initiated in the Razorpay dashboard; the platform fee is not reversed on refund."
+  impact: "Low - merchants cannot self-serve refunds."
+  location: "sales module"
+  status: "open"
+- id: TD-003
+  date: "2026-10-02"
+  description: "Rate limiting is in-process (Bucket4j)."
+  impact: "Medium - limits are per instance once more than one backend instance runs."
+  location: "common/web rate limiting"
+  status: "open"

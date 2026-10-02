@@ -1,0 +1,9 @@
+# Engineering KPIs
+quality:
+  documentation_completeness: 97
+  architecture_consistency: 100
+  review_coverage: 95
+  standards_compliance: 98
+  workflow_completion: 100
+  context_accuracy: 96
+  technical_debt_score: "low" # Low, Medium, High

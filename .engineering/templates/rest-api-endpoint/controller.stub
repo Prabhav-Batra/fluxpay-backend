@@ -1,0 +1,61 @@
+// ============================================================================
+// Controller Stub for REST API Endpoints
+// Framework-agnostic structure (can be adapted for Express, Spring, Go Fiber)
+// ============================================================================
+
+/**
+ * Handles HTTP requests for the {{ RESOURCE_NAME }} resource.
+ * Responsibilities:
+ * 1. Extract and validate HTTP inputs (params, query, body)
+ * 2. Invoke the appropriate Application Use Case / Service
+ * 3. Map the Domain/Application result to an HTTP Response (Status Code + DTO)
+ * 
+ * MUST NOT contain business logic or direct database access.
+ */
+class {{ RESOURCE_NAME }}Controller {
+    
+    // Dependencies injected via constructor
+    constructor(private readonly useCase: {{ RESOURCE_NAME }}UseCase) {}
+
+    /**
+     * POST /api/v1/{{ RESOURCE_PLURAL }}
+     */
+    async create(req: HttpRequest, res: HttpResponse) {
+        try {
+            // 1. Validate Input (Fail fast with 400/422)
+            const dto = Create{{ RESOURCE_NAME }}Request.validate(req.body);
+
+            // 2. Execute Use Case
+            const result = await this.useCase.execute(dto);
+
+            // 3. Map to Response (201 Created)
+            return res.status(201).json({
+                data: {{ RESOURCE_NAME }}ResponseMapper.toDTO(result)
+            });
+        } catch (error) {
+            // Error handling mapped to appropriate HTTP codes via middleware
+            // (e.g., DomainException -> 400, NotFoundException -> 404)
+            return next(error);
+        }
+    }
+
+    /**
+     * GET /api/v1/{{ RESOURCE_PLURAL }}/:id
+     */
+    async getById(req: HttpRequest, res: HttpResponse) {
+        try {
+            // 1. Extract Input
+            const id = req.params.id;
+
+            // 2. Execute Use Case
+            const result = await this.useCase.getById(id);
+
+            // 3. Map to Response (200 OK)
+            return res.status(200).json({
+                data: {{ RESOURCE_NAME }}ResponseMapper.toDTO(result)
+            });
+        } catch (error) {
+            return next(error);
+        }
+    }
+}

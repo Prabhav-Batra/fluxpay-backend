@@ -1,0 +1,8 @@
+name: docker
+version: 1.0.0
+description: "Core standards for Docker containerization."
+dependencies: []
+
+injects:
+  - best-practices.md
+  - pitfalls.md

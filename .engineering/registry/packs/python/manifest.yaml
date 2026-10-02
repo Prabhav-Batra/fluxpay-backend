@@ -1,0 +1,8 @@
+name: python
+version: 1.0.0
+description: "Core standards for Python backend development."
+dependencies: []
+
+injects:
+  - best-practices.md
+  - pitfalls.md

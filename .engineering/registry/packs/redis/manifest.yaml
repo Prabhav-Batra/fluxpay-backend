@@ -1,0 +1,8 @@
+name: redis
+version: 1.0.0
+description: "Core standards for Redis caching and data structures."
+dependencies: []
+
+injects:
+  - best-practices.md
+  - pitfalls.md
