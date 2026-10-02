@@ -3,6 +3,7 @@ package com.fluxpay.support;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fluxpay.common.tenant.Mode;
 import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
 import org.springframework.http.MediaType;
@@ -38,5 +39,15 @@ public final class TestMerchants {
                 result.getResponse().getCookie("SESSION"),
                 JsonPath.read(json, "$.merchant_id"),
                 JsonPath.read(json, "$.id"));
+    }
+
+    public static String createApiKey(MockMvc mockMvc, SignedIn merchant, Mode mode) throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/dashboard/api_keys")
+                        .with(csrf())
+                        .cookie(merchant.session())
+                        .header("FluxPay-Mode", mode.value()))
+                .andExpect(status().isCreated())
+                .andReturn();
+        return JsonPath.read(result.getResponse().getContentAsString(), "$.secret");
     }
 }
