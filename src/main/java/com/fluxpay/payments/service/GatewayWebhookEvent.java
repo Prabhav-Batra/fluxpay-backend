@@ -6,5 +6,7 @@ public sealed interface GatewayWebhookEvent {
 
     record RefundProcessed(GatewayRefund refund) implements GatewayWebhookEvent {}
 
+    record PaymentFailed(GatewayPayment payment) implements GatewayWebhookEvent {}
+
     record Ignored(String type) implements GatewayWebhookEvent {}
 }

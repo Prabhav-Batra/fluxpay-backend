@@ -8,4 +8,6 @@ public interface GatewayEventHandler {
     void onPaymentCaptured(Mode mode, GatewayPayment payment);
 
     void onRefundProcessed(Mode mode, GatewayRefund refund);
+
+    void onPaymentFailed(Mode mode, GatewayPayment payment);
 }

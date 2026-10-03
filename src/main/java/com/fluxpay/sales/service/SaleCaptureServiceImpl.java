@@ -95,6 +95,28 @@ public class SaleCaptureServiceImpl implements SaleCaptureService {
         completeSale(session, payment);
     }
 
+    @Override
+    @Transactional
+    public void failPayment(Mode mode, GatewayPayment payment) {
+        if (alreadyRecorded(payment)) {
+            return;
+        }
+        Optional<CheckoutSessionView> locked = checkoutService.lockByGatewayOrderId(payment.orderId());
+        if (locked.isEmpty()) {
+            log.warn("Failed payment {} references unknown order {}", payment.id(), payment.orderId());
+            return;
+        }
+        CheckoutSessionView session = locked.get();
+        if (session.mode() != mode) {
+            log.warn("Failed payment {} arrived on {} endpoint for a {} session", payment.id(), mode, session.mode());
+            return;
+        }
+        if (alreadyRecorded(payment)) {
+            return;
+        }
+        record(session, payment, PaymentStatus.FAILED);
+    }
+
     private void completeSale(CheckoutSessionView session, GatewayPayment payment) {
         Instant now = Instant.now(clock);
         TenantContext tenant = new TenantContext(session.merchantId(), session.mode());

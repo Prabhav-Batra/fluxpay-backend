@@ -174,6 +174,17 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
 
     @Override
+    @Transactional
+    public String verifyPayment(UUID sessionId, String gatewayOrderId, String gatewayPaymentId, String signature) {
+        CheckoutSession session = sessions.findById(sessionId).orElseThrow(CheckoutServiceImpl::sessionNotFound);
+        if (!gateway.verifyPaymentSignature(session.getMode(), gatewayOrderId, gatewayPaymentId, signature)) {
+            throw FluxpayException.conflict("INVALID_SIGNATURE", "Payment signature verification failed");
+        }
+        // Do not complete the session here; rely on the webhook to create the sale.
+        return session.getSuccessUrl();
+    }
+
+    @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void markCompleted(UUID sessionId, Instant now) {
         sessions.findById(sessionId)

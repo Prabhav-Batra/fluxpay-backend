@@ -31,6 +31,8 @@ public class RazorpayWebhookParser {
             return switch (type) {
                 case "payment.captured" -> new GatewayWebhookEvent.PaymentCaptured(
                         RazorpayPayloads.toPayment(entity(root, "payment")));
+                case "payment.failed" -> new GatewayWebhookEvent.PaymentFailed(
+                        RazorpayPayloads.toPayment(entity(root, "payment")));
                 case "refund.processed" -> new GatewayWebhookEvent.RefundProcessed(
                         RazorpayPayloads.toRefund(entity(root, "refund")));
                 default -> new GatewayWebhookEvent.Ignored(type);

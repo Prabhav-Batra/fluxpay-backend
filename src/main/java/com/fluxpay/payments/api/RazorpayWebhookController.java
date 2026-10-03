@@ -48,6 +48,7 @@ public class RazorpayWebhookController {
         }
         switch (parser.parse(body)) {
             case GatewayWebhookEvent.PaymentCaptured captured -> handler.onPaymentCaptured(mode, captured.payment());
+            case GatewayWebhookEvent.PaymentFailed failed -> handler.onPaymentFailed(mode, failed.payment());
             case GatewayWebhookEvent.RefundProcessed refund -> handler.onRefundProcessed(mode, refund.refund());
             case GatewayWebhookEvent.Ignored ignored -> log.debug("Ignoring Razorpay event {}", ignored.type());
         }

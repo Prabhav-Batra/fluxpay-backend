@@ -35,6 +35,17 @@ public class PublicCheckoutController {
         return PaymentInstructionsResponse.from(checkoutService.startPayment(CheckoutSessionApiController.parseId(id)));
     }
 
+    @PostMapping("/checkout_sessions/{id}/verify")
+    public java.util.Map<String, String> verify(
+            @PathVariable String id, @RequestBody java.util.Map<String, String> body) {
+        String successUrl = checkoutService.verifyPayment(
+                CheckoutSessionApiController.parseId(id),
+                body.get("razorpay_order_id"),
+                body.get("razorpay_payment_id"),
+                body.get("razorpay_signature"));
+        return java.util.Map.of("success_url", successUrl == null ? "" : successUrl);
+    }
+
     @PostMapping("/payment_links/{slug}/checkout_sessions")
     @ResponseStatus(HttpStatus.CREATED)
     public LinkCheckoutResponse createFromLink(

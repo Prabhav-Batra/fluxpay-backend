@@ -22,6 +22,8 @@ public interface CheckoutService {
     /** Row-locks the session owning this gateway order in the caller's transaction. */
     Optional<CheckoutSessionView> lockByGatewayOrderId(String gatewayOrderId);
 
+    String verifyPayment(UUID sessionId, String gatewayOrderId, String gatewayPaymentId, String signature);
+
     void markCompleted(UUID sessionId, Instant now);
 
     /** Expires up to {@code limit} open sessions past their expiry in the caller's transaction. */

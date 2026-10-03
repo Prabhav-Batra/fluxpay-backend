@@ -53,6 +53,7 @@ public class RazorpayGateway implements PaymentGateway {
         body.put("currency", currency);
         body.put("receipt", receipt);
         body.put("notes", notes);
+        body.put("payment_capture", 1); // Auto-capture the payment
         try {
             Map<?, ?> response = client.post()
                     .uri("/v1/orders")
@@ -96,6 +97,21 @@ public class RazorpayGateway implements PaymentGateway {
                 .credentials(mode)
                 .map(credentials -> WebhookSignatures.matches(
                         WebhookSignatures.hmacSha256Hex(credentials.webhookSecret(), body), signature))
+                .orElse(false);
+    }
+
+    @Override
+    public boolean verifyPaymentSignature(Mode mode, String orderId, String paymentId, String signature) {
+        if (orderId == null || paymentId == null) {
+            return false;
+        }
+        String payload = orderId + "|" + paymentId;
+        return properties
+                .credentials(mode)
+                .map(credentials -> WebhookSignatures.matches(
+                        WebhookSignatures.hmacSha256Hex(
+                                credentials.keySecret(), payload.getBytes(java.nio.charset.StandardCharsets.UTF_8)),
+                        signature))
                 .orElse(false);
     }
 

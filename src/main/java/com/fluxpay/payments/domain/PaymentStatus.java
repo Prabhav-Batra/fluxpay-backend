@@ -7,7 +7,8 @@ import java.util.Locale;
 public enum PaymentStatus {
     CAPTURED,
     AMOUNT_MISMATCH,
-    DUPLICATE;
+    DUPLICATE,
+    FAILED;
 
     @JsonValue
     public String value() {

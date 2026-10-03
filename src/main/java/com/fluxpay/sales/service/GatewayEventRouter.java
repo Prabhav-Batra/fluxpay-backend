@@ -26,4 +26,9 @@ public class GatewayEventRouter implements GatewayEventHandler {
     public void onRefundProcessed(Mode mode, GatewayRefund refund) {
         refundService.refund(mode, refund);
     }
+
+    @Override
+    public void onPaymentFailed(Mode mode, GatewayPayment payment) {
+        captureService.failPayment(mode, payment);
+    }
 }

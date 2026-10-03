@@ -20,4 +20,7 @@ public interface PaymentGateway {
 
     /** False for a wrong, missing or unverifiable signature. Never throws. */
     boolean verifyWebhookSignature(Mode mode, byte[] body, String signature);
+
+    /** False for a wrong, missing or unverifiable payment signature. Never throws. */
+    boolean verifyPaymentSignature(Mode mode, String orderId, String paymentId, String signature);
 }
